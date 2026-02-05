@@ -8,171 +8,191 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-gray-900 text-white min-h-screen font-sans overflow-x-hidden relative selection:bg-pink-500 selection:text-white">
+<body class="transition-colors duration-500 selection:bg-pink-500 selection:text-white min-h-screen font-sans overflow-x-hidden relative">
 
     <!-- Animated Background -->
-    <div class="fixed inset-0 z-[-1]">
-        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div class="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div class="absolute bottom-[-20%] left-[20%] w-[40%] h-[40%] bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+    <div class="fixed inset-0 z-[-1] opacity-30 dark:opacity-20 pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
+        <div class="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
+        <div class="absolute bottom-[-20%] left-[20%] w-[40%] h-[40%] bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
     </div>
 
-    <div class="container mx-auto px-4 py-8 h-screen flex flex-col">
+    <div class="container mx-auto px-4 py-4 h-screen flex flex-col">
         <!-- Header -->
-        <header class="flex justify-between items-center mb-8 fade-in">
+        <header class="flex justify-between items-center mb-4 fade-in">
             <div class="flex items-center gap-3">
-                <i class="fa-solid fa-shield-halved text-3xl text-pink-400"></i>
-                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-purple-400">CMH13 Header Analyst</h1>
+                <i class="fa-solid fa-shield-halved text-3xl text-pink-500"></i>
+                <h1 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-500 uppercase tracking-tighter">CMH13 Analysis</h1>
             </div>
-            <button id="themeToggle" class="glass-button p-2 rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/10 transition">
-                <i class="fa-solid fa-moon"></i>
+            <button id="themeToggle" class="glass-button p-2 rounded-xl w-10 h-10 flex items-center justify-center transition-all active:scale-95 shadow-lg">
+                <i class="fa-solid fa-moon text-lg"></i>
             </button>
         </header>
 
         <!-- Main Content Area -->
-        <main class="flex-grow flex flex-col relative">
+        <main class="flex-grow flex flex-col relative min-h-0">
             
             <!-- Login View -->
-            <section id="loginSection" class="w-full max-w-md mx-auto my-auto relative z-10 transition-all duration-500">
-                <div class="glass-card p-8 rounded-2xl shadow-2xl border border-white/10">
-                    <div class="text-center mb-6">
-                        <h2 class="text-3xl font-bold mb-2">Connect Inbox</h2>
-                        <p class="text-gray-400 text-sm">Securely access headers via Gmail App Password</p>
+            <section id="loginSection" class="w-full max-w-lg mx-auto my-auto relative z-10 transition-all duration-500">
+                <div class="glass-card p-10 rounded-3xl shadow-2xl border-white/10 overflow-hidden relative">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 to-purple-600"></div>
+                    <div class="text-center mb-8">
+                        <h2 class="text-4xl font-black mb-2 uppercase tracking-tight text-white">Connect Inbox</h2>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-[0.2em]">Secure Header Protocol Access</p>
                     </div>
 
                     <form id="loginForm" class="space-y-6">
                         <div class="space-y-2">
-                            <label class="block text-sm font-medium text-gray-300">Email Address</label>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Email Address</label>
                             <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><i class="fa-solid fa-envelope"></i></span>
-                                <input type="email" id="email" class="glass-input w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all text-white placeholder-gray-500" placeholder="user@gmail.com" required>
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-pink-500/50"><i class="fa-solid fa-at"></i></span>
+                                <input type="email" id="email" class="glass-input w-full pl-12 pr-4 py-4 rounded-xl focus:outline-none transition-all placeholder-slate-600 text-sm font-medium" placeholder="user@gmail.com" required>
                             </div>
                         </div>
 
                         <div class="space-y-2">
-                            <label class="block text-sm font-medium text-gray-300">App Password (16 chars)</label>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">App Password</label>
                             <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><i class="fa-solid fa-key"></i></span>
-                                <input type="password" id="password" class="glass-input w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all text-white placeholder-gray-500" placeholder="xxxx xxxx xxxx xxxx" required>
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-pink-500/50"><i class="fa-solid fa-unlock-keyhole"></i></span>
+                                <input type="password" id="password" class="glass-input w-full pl-12 pr-4 py-4 rounded-xl focus:outline-none transition-all placeholder-slate-600 text-sm font-medium" placeholder="xxxx xxxx xxxx xxxx" required>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">We never store your credentials.</p>
+                            <p class="text-[9px] text-slate-600 mt-2 font-bold uppercase tracking-wider ml-1">Data held in RAM — Never stored</p>
                         </div>
 
-                        <button type="submit" id="connectBtn" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2">
-                            <span>Check Connection</span>
-                            <i class="fa-solid fa-arrow-right"></i>
+                        <button type="submit" id="connectBtn" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black py-4 px-6 rounded-xl transition-all active:scale-[0.98] shadow-xl shadow-pink-500/20 flex items-center justify-center gap-3 uppercase tracking-widest text-xs">
+                            <span>Initialize link</span>
+                            <i class="fa-solid fa-plug-circle-check"></i>
                         </button>
                         
-                        <div id="loginStatus" class="h-6 text-center text-sm font-medium"></div>
+                        <div id="loginStatus" class="h-6 text-center text-[11px] font-black uppercase tracking-widest mt-2"></div>
                     </form>
                 </div>
             </section>
 
             <!-- Dashboard View (Initially Hidden) -->
-            <section id="dashboardSection" class="hidden flex-grow flex flex-col md:flex-row gap-6 h-full transition-all duration-500 opacity-0 transform translate-y-4">
+            <section id="dashboardSection" class="hidden flex-grow flex flex-col md:flex-row gap-4 h-full min-h-0 transition-all duration-500 opacity-0 transform translate-y-4">
                 
                 <!-- Sidebar / Email List -->
-                <aside class="w-full md:w-1/3 lg:w-1/4 glass-card rounded-2xl border border-white/10 flex flex-col overflow-hidden h-[calc(100vh-12rem)]">
-                    <div class="p-4 border-b border-white/10 bg-white/5 space-y-3">
+                <aside id="sidebar" class="w-full md:w-1/3 lg:w-1/4 glass-card rounded-3xl border-white/10 flex flex-col overflow-hidden shadow-2xl transition-all duration-500 origin-left">
+                    <div class="p-4 border-b border-white/5 bg-white/5 space-y-4 shrink-0">
                         <div class="flex justify-between items-center">
-                            <h3 class="font-semibold text-gray-200">Inbox Headers</h3>
-                            <button id="refreshBtn" class="text-gray-400 hover:text-white transition"><i class="fa-solid fa-arrows-rotate"></i></button>
+                            <h3 class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Node Headers</h3>
+                            <button id="refreshBtn" class="w-8 h-8 rounded-lg glass-button flex items-center justify-center hover:rotate-180 transition-transform duration-500 text-pink-500"><i class="fa-solid fa-arrows-rotate"></i></button>
                         </div>
                         
                         <!-- Filters -->
-                        <div class="space-y-2">
-                             <select id="boxSelect" class="w-full bg-black/30 border border-white/10 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-pink-500">
+                        <div class="space-y-3">
+                             <select id="boxSelect" class="w-full glass-input rounded-xl px-4 py-2 text-[11px] font-bold uppercase tracking-wider focus:outline-none">
                                 <option value="INBOX">INBOX</option>
                                 <option disabled>Loading folders...</option>
                             </select>
                             
                             <div class="flex gap-2">
-                                <input id="rangeStart" type="text" placeholder="Start (e.g. 1)" class="w-1/2 bg-black/30 border border-white/10 rounded px-2 py-1 text-xs text-white">
-                                <input id="rangeEnd" type="text" placeholder="End (e.g. *)" class="w-1/2 bg-black/30 border border-white/10 rounded px-2 py-1 text-xs text-white">
+                                <input id="rangeStart" type="text" placeholder="START" class="w-1/2 glass-input rounded-xl px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-center">
+                                <input id="rangeEnd" type="text" placeholder="END" class="w-1/2 glass-input rounded-xl px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-center">
                             </div>
-                            <button id="applyRangeBtn" class="w-full bg-pink-500/20 hover:bg-pink-500/40 text-pink-200 text-xs py-1 rounded transition mb-4">Apply Range</button>
+                            <button id="applyRangeBtn" class="w-full bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 text-[10px] font-black uppercase tracking-widest py-2.5 rounded-xl transition-all border border-pink-500/10 active:scale-95 mb-1">Sync Range</button>
                             
                             <!-- Advanced Config -->
-                            <div class="border-t border-white/10 pt-2 space-y-2">
-                                <p class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Processing Rules</p>
+                            <div class="border-t border-white/5 pt-3 space-y-2">
+                                <div id="toggleRules" class="flex justify-between items-center cursor-pointer group hover:text-pink-400 transition-colors">
+                                    <p class="text-[9px] text-slate-600 uppercase tracking-[0.2em] font-black group-hover:text-pink-400 transition-colors">Optimization Rules</p>
+                                    <i class="fa-solid fa-chevron-up text-[9px] text-slate-600 group-hover:text-pink-400 transition-transform duration-300 transform" id="rulesCaret"></i>
+                                </div>
                                 
-                                <input type="text" id="domainInput" placeholder="Domain Replace (e.g. example.com)" class="w-full bg-black/30 border border-white/10 rounded px-2 py-1 text-xs text-gray-300 focus:border-pink-500">
-                                <input type="text" id="msgIdTag" value="[EID]" placeholder="Message-ID Tag" class="w-full bg-black/30 border border-white/10 rounded px-2 py-1 text-xs text-gray-300 focus:border-pink-500">
-                                
-                                <div class="space-y-1">
-                                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="replaceDate" class="w-3 h-3 rounded text-pink-500 bg-gray-700 border-gray-600" checked> <span class="text-[10px] text-gray-400">Date -> [DATE]</span></label>
-                                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="replaceTo" class="w-3 h-3 rounded text-pink-500 bg-gray-700 border-gray-600" checked> <span class="text-[10px] text-gray-400">To -> [*to]</span></label>
-                                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="keepReceived" class="w-3 h-3 rounded text-pink-500 bg-gray-700 border-gray-600" checked> <span class="text-[10px] text-gray-400">Keep Received</span></label>
-                                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="keepReplyTo" class="w-3 h-3 rounded text-pink-500 bg-gray-700 border-gray-600" checked> <span class="text-[10px] text-gray-400">Keep Reply-To</span></label>
-                                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="addCc" class="w-3 h-3 rounded text-pink-500 bg-gray-700 border-gray-600"> <span class="text-[10px] text-gray-400">Add Cc: [*to]</span></label>
+                                <div id="rulesContent" class="grid transition-all duration-300 overflow-hidden">
+                                    <div class="space-y-3 pt-3">
+                                        <input type="text" id="domainInput" placeholder="REPLACE DOMAIN" class="w-full glass-input rounded-xl px-4 py-2 text-[11px] font-bold uppercase tracking-widest">
+                                        <input type="text" id="msgIdTag" value="[EID]" placeholder="MSG-ID TAG" class="w-full glass-input rounded-xl px-4 py-2 text-[11px] font-bold uppercase tracking-widest">
+                                        
+                                        <div class="space-y-1 pt-1 overflow-y-auto max-h-[120px] custom-scrollbar">
+                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="replaceDate" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-pink-500 transition-all" checked> <span class="text-[9px] font-bold text-slate-500 group-hover:text-pink-400 transition-colors uppercase tracking-wider">Date -> [DATE]</span></label>
+                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="replaceTo" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-pink-500 transition-all" checked> <span class="text-[9px] font-bold text-slate-500 group-hover:text-pink-400 transition-colors uppercase tracking-wider">To -> [*to]</span></label>
+                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="keepReceived" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-pink-500 transition-all" checked> <span class="text-[9px] font-bold text-slate-500 group-hover:text-pink-400 transition-colors uppercase tracking-wider">Keep Received</span></label>
+                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="keepReplyTo" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-pink-500 transition-all" checked> <span class="text-[9px] font-bold text-slate-500 group-hover:text-pink-400 transition-colors uppercase tracking-wider">Keep Reply-To</span></label>
+                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="addCc" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-pink-500 transition-all"> <span class="text-[9px] font-bold text-slate-500 group-hover:text-pink-400 transition-colors uppercase tracking-wider">Add Cc: [*to]</span></label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div id="emailList" class="flex-grow overflow-y-auto p-2 space-y-2 custom-scrollbar">
+                    <div id="emailList" class="flex-grow overflow-y-auto p-4 space-y-3 custom-scrollbar min-h-0 text-white">
                         <!-- Email Items injected here -->
-                        <div class="text-center text-gray-500 mt-10">
-                            <i class="fa-solid fa-inbox text-4xl mb-2 opacity-50"></i>
-                            <p>Loading emails...</p>
+                        <div class="flex flex-col items-center justify-center h-full text-slate-600/50">
+                            <i class="fa-solid fa-inbox text-5xl mb-4 opacity-20"></i>
+                            <p class="text-[10px] font-black uppercase tracking-[0.3em]">Protocol Standby</p>
                         </div>
                     </div>
-                    <div class="p-3 border-t border-white/10 bg-white/5">
-                        <button id="logoutBtn" class="w-full py-2 px-4 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-300 hover:text-red-100 transition text-sm flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
+                    <div class="p-4 bg-white/5 border-t border-white/5 shrink-0">
+                        <button id="logoutBtn" class="w-full py-3 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 border border-red-500/10">
+                            <i class="fa-solid fa-power-off"></i> Terminate Link
                         </button>
                     </div>
                 </aside>
 
                 <!-- Main Work Area -->
-                <div class="flex-grow flex flex-col gap-6 h-[calc(100vh-12rem)]">
+                <div class="flex-grow flex flex-col gap-4 min-w-0 min-h-0">
                     
-                    <!-- Top Controls / Toolbar -->
-                    <div class="glass-card p-4 rounded-xl border border-white/10 flex items-center justify-between shrink-0">
-                        <div class="flex items-center gap-4">
-                             <div class="flex items-center gap-2">
-                                <span class="text-sm text-gray-400">Mode:</span>
-                                <div class="flex bg-black/30 rounded-lg p-1">
-                                    <button id="btnRaw" class="px-3 py-1 rounded-md text-sm font-medium bg-pink-500 text-white shadow-sm transition">Raw</button>
-                                    <button id="btnCleaned" class="px-3 py-1 rounded-md text-sm font-medium text-gray-400 hover:text-white transition">Cleaned</button>
-                                </div>
-                            </div>
+                    <!-- Top Ribbon: Sidebar Toggle, Mode and Viewer Config -->
+                    <div class="flex items-center gap-3 shrink-0">
+                        <button id="sidebarToggle" class="glass-button w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-pink-500 transition active:scale-95 shadow-lg">
+                            <i class="fa-solid fa-bars-staggered"></i>
+                        </button>
+
+                        <div class="glass-card p-1 rounded-xl flex items-center gap-1 border-white/5 shadow-xl">
+                            <button id="btnRaw" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest bg-pink-500 text-white shadow-lg shadow-pink-500/20 transition-all">Raw Source</button>
+                            <button id="btnCleaned" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-pink-400 transition-all">Anonymized</button>
                         </div>
-                        </div>
-                        <div class="flex gap-2">
-                             <button id="downloadBtn" class="glass-button px-4 py-2 rounded-lg text-sm text-blue-300 hover:bg-blue-500/20 transition flex items-center gap-2">
-                                <i class="fa-solid fa-file-export"></i>
-                                Save All
+                        
+                        <div class="flex-grow flex items-center gap-2 overflow-x-auto no-scrollbar custom-scrollbar">
+                            <button id="downloadBtn" class="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl glass-button text-[9px] font-black uppercase tracking-widest text-blue-500">
+                                <i class="fa-solid fa-cloud-arrow-down"></i> Export
                             </button>
-                            <button id="viewBtn" class="glass-button px-4 py-2 rounded-lg text-sm text-purple-300 hover:bg-purple-500/20 transition flex items-center gap-2">
-                                <i class="fa-solid fa-eye"></i>
-                                View Selected
+                            <button id="viewBtn" class="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl glass-button text-[9px] font-black uppercase tracking-widest text-purple-500">
+                                <i class="fa-solid fa-layer-group"></i> Multi
                             </button>
-                            <button id="copyBtn" class="glass-button px-4 py-2 rounded-lg text-sm text-pink-300 hover:bg-pink-500/20 transition flex items-center gap-2">
-                                <i class="fa-regular fa-copy"></i>
-                                Copy Analysis
+                            <button id="copyBtn" class="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl glass-button text-[9px] font-black uppercase tracking-widest text-pink-500">
+                                <i class="fa-regular fa-copy"></i> Copy
+                            </button>
+                            <div class="h-6 w-[1px] bg-white/10 shrink-0 mx-1"></div>
+                            <button id="scriptTestBtn" class="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl glass-button text-[9px] font-black uppercase tracking-widest text-emerald-500">
+                                <i class="fa-solid fa-microchip"></i> Script Test
                             </button>
                         </div>
                     </div>
 
-                    <!-- Viewer -->
-                    <div class="glass-card flex-grow rounded-2xl border border-white/10 p-6 overflow-hidden relative group">
-                        <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
-                            <i class="fa-regular fa-file-code text-6xl mb-4 opacity-30"></i>
-                            <p class="text-lg">Select an email to analyze headers</p>
+                    <!-- Row 3: Viewer -->
+                    <div class="glass-card flex-grow rounded-3xl p-1 overflow-hidden relative border-white/10 shadow-3xl bg-black/20 min-h-0">
+                        <!-- Empty State (Matches Screenshot) -->
+                        <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <div class="p-8 rounded-full bg-white/[0.01] border border-white/5 mb-6">
+                                <i class="fa-solid fa-terminal text-6xl text-slate-800/50"></i>
+                            </div>
+                            <p class="text-slate-500 text-lg font-medium opacity-60">Select an email to analyze headers</p>
+                            <div id="instructionText" class="mt-4 text-[10px] font-black text-slate-700 uppercase tracking-[0.3em] animate-pulse">Waiting for selection...</div>
                         </div>
                         
                         <div id="contentArea" class="hidden h-full flex flex-col">
-                            <div class="flex mb-4 gap-4 text-sm border-b border-white/10 pb-4">
-                                <div class="flex-1">
-                                    <span class="text-gray-500 block mb-1">From</span>
-                                    <span id="metaFrom" class="text-white font-mono bg-black/20 px-2 py-1 rounded"></span>
+                            <div class="flex items-center justify-between mb-4 pb-4 border-b border-white/5">
+                                <div class="flex items-center gap-10">
+                                    <div class="space-y-0.5">
+                                        <span class="text-[9px] uppercase tracking-widest font-black text-slate-600">Source Protocol</span>
+                                        <div id="metaFrom" class="text-xs font-mono text-pink-300 bg-pink-500/5 px-2 py-0.5 rounded border border-pink-500/10"></div>
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <span class="text-[9px] uppercase tracking-widest font-black text-slate-600">Subject identifier</span>
+                                        <div id="metaSubject" class="text-xs font-bold text-white truncate max-w-[400px]"></div>
+                                    </div>
                                 </div>
-                                <div class="flex-1">
-                                    <span class="text-gray-500 block mb-1">Subject</span>
-                                    <span id="metaSubject" class="text-white font-medium truncate block"></span>
+                                <div class="px-3 py-1 bg-black/40 rounded-full border border-white/10 flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_var(--accent-emerald)]"></div>
+                                    <span class="text-[8px] font-black uppercase tracking-widest text-emerald-500">Live Buffer</span>
                                 </div>
                             </div>
-                            <pre id="headerContent" class="flex-grow overflow-auto font-mono text-xs md:text-sm text-green-300 bg-black/40 p-4 rounded-xl custom-scrollbar break-all whitespace-pre-wrap"></pre>
+                            <div class="flex-grow overflow-hidden rounded-2xl bg-black/60 border border-white/5 shadow-inner">
+                                <pre id="headerContent" class="h-full overflow-auto p-4 font-mono text-[12px] leading-relaxed text-emerald-400 selection:bg-emerald-500/20 custom-scrollbar whitespace-pre-wrap break-all"></pre>
+                            </div>
                         </div>
                     </div>
 
