@@ -520,7 +520,7 @@ function renderEmailList() {
     state.emails.forEach(email => {
         const item = document.createElement('div');
         const isActive = state.selectedEmailId === email.id;
-        item.className = `email-item p-3.5 rounded-2xl cursor-pointer relative group transition-all duration-300 ${isActive ? 'active' : 'hover:bg-white/5'}`;
+        item.className = `email-item glass-card p-3.5 rounded-2xl cursor-pointer relative group transition-all duration-300 ${isActive ? 'active' : 'hover:bg-white/5'}`;
 
         const fromFull = email.headers.from ? email.headers.from[0] : 'Unknown';
         const senderName = fromFull.split('<')[0].trim().replace(/^"|"$/g, '') || 'System';
