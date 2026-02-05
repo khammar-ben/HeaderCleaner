@@ -107,8 +107,8 @@ app.post('/api/fetch-headers', async (req, res) => {
         await connection.openBox(box);
 
         const fetchOptions = {
-            bodies: ['HEADER', ''], // Fetch Header (for easy parsing) AND Full Raw for body text
-            struct: false,
+            bodies: ['HEADER.FIELDS (FROM TO SUBJECT DATE)', 'TEXT'],
+            struct: true,
             markSeen: false
         };
 
@@ -130,9 +130,10 @@ app.post('/api/fetch-headers', async (req, res) => {
         // Helper to fetch messages (handles range/uids and streams)
         const fetchMessages = (target, options) => {
             return new Promise((resolve, reject) => {
-                const f = connection.imap.seq.fetch(target, options);
+                // Determine if we should use sequence numbers or UIDs
+                const fetcher = target.includes(':') ? connection.imap.seq.fetch(target, options) : connection.imap.fetch(target, options);
                 const msgs = [];
-                f.on('message', (msg, seqno) => {
+                fetcher.on('message', (msg, seqno) => {
                     let attributes = { uid: seqno };
                     let parts = [];
                     msg.on('attributes', attrs => { attributes = attrs; });
@@ -147,8 +148,8 @@ app.post('/api/fetch-headers', async (req, res) => {
                         msgs.push({ attributes, parts, seqNo: seqno });
                     });
                 });
-                f.once('error', reject);
-                f.once('end', () => resolve(msgs));
+                fetcher.once('error', reject);
+                fetcher.once('end', () => resolve(msgs));
             });
         };
 
@@ -158,75 +159,43 @@ app.post('/api/fetch-headers', async (req, res) => {
         if (rangeStr.includes(':')) {
             messageObjects = await fetchMessages(rangeStr, fetchOptions);
         } else {
-            const uids = await connection.search(['ALL']);
+            const allUids = await connection.search(['ALL']);
             const limit = parseInt(rangeStr) || 20;
-            const targetUids = uids.slice(-limit).reverse();
+            const targetUids = allUids.slice(-limit).reverse();
             if (targetUids.length > 0) {
-                // For targetUids, we need to convert them to sequence numbers if we use seq.fetch
-                // or use connection.imap.fetch. Let's use search result uids with raw fetch.
-                messageObjects = await new Promise((resolve, reject) => {
-                    const f = connection.imap.fetch(targetUids, fetchOptions);
-                    const msgs = [];
-                    f.on('message', (msg, seqno) => {
-                        let attributes = { uid: seqno };
-                        let parts = [];
-                        msg.on('attributes', attrs => { attributes = attrs; });
-                        msg.on('body', (stream, info) => {
-                            let buffer = '';
-                            stream.on('data', chunk => buffer += chunk.toString('utf8'));
-                            stream.on('end', () => {
-                                parts.push({ which: info.which, body: buffer });
-                            });
-                        });
-                        msg.on('end', () => {
-                            msgs.push({ attributes, parts, seqNo: seqno });
-                        });
-                    });
-                    f.once('error', reject);
-                    f.once('end', () => resolve(msgs));
-                });
+                messageObjects = await fetchMessages(targetUids, fetchOptions);
             }
         }
 
         console.log(`[Backend] Fetched ${messageObjects.length} messages for box ${box}`);
 
         const processedMessages = await Promise.all(messageObjects.map(async (item) => {
-            // Flexible part detection
-            const headerPart = item.parts.find(p => p.which.toUpperCase().includes('HEADER'));
-            const bodyPart = item.parts.find(p => p.which === '' || p.which.toUpperCase().includes('TEXT'));
+            const headerPart = item.parts.find(p => p.which.includes('HEADER'));
+            const bodyPart = item.parts.find(p => p.which === 'TEXT' || p.which === '');
 
-            // Header parsing
-            let headers = {};
-            if (headerPart && typeof headerPart.body === 'object') headers = headerPart.body;
-            else if (headerPart) headers = parseHeaderStr(headerPart.body);
+            let headers = headerPart ? parseHeaderStr(headerPart.body) : {};
+            let bodyContent = bodyPart ? bodyPart.body : '';
+            let textBody = bodyContent;
 
-            // Body Parsing
-            let textBody = '';
-            const rawBody = bodyPart ? bodyPart.body : '';
-
-            if (rawBody) {
+            // Optional: Still use simpleParser if content looks like encoded MIME
+            if (bodyContent.includes('Content-Transfer-Encoding')) {
                 try {
-                    const parsed = await simpleParser(rawBody);
+                    const parsed = await simpleParser(bodyContent);
                     textBody = (parsed.text || '').trim();
-
-                    // Fallback to HTML-to-Text if plain text is missing
-                    if (!textBody && parsed.html) {
-                        textBody = parsed.html.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
-                    }
                 } catch (e) {
-                    console.error(`[Backend] UID ${item.attributes.uid} Parse Error:`, e);
-                    textBody = '(Error parsing body)';
+                    // Fallback to raw if parsing fails
                 }
+            } else {
+                // Basic cleanup if no full parse needed
+                textBody = bodyContent.replace(/^\s*|\s*$/g, '');
             }
-
-            console.log(`[Backend] UID ${item.attributes.uid} | Part: ${bodyPart?.which || 'NONE'} | Body Len: ${textBody.length}`);
 
             return {
                 id: item.attributes ? item.attributes.uid : item.seqNo,
                 seq: item.seqNo,
                 headers: headers,
-                raw: rawBody || '', // Store the raw content for viewer
-                bodyText: textBody || '(No text content found)'
+                raw: bodyContent, // This is now just the text part, not 50MB of attachments
+                bodyText: textBody
             };
         }));
 
