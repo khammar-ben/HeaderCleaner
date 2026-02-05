@@ -47,7 +47,7 @@ const toast = document.getElementById('toast');
 // API Configuration
 // For local dev (frontend on 5000, backend on 3000), use absolute URL.
 // For production (Vercel), use relative /api
-const API_URL = window.location.port === '5000'
+const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.'))
     ? `http://${window.location.hostname}:3000/api`
     : '/api';
 
@@ -520,7 +520,7 @@ function renderEmailList() {
     state.emails.forEach(email => {
         const item = document.createElement('div');
         const isActive = state.selectedEmailId === email.id;
-        item.className = `email-item p-3.5 rounded-2xl cursor-pointer relative group transition-all duration-300 \${isActive ? 'active' : 'hover:bg-white/5'}`;
+        item.className = `email-item p-3.5 rounded-2xl cursor-pointer relative group transition-all duration-300 ${isActive ? 'active' : 'hover:bg-white/5'}`;
 
         const fromFull = email.headers.from ? email.headers.from[0] : 'Unknown';
         const senderName = fromFull.split('<')[0].trim().replace(/^"|"$/g, '') || 'System';
@@ -529,27 +529,27 @@ function renderEmailList() {
         const dateRaw = email.headers.date ? email.headers.date[0] : '';
         const dayMonth = dateRaw.split(' ').slice(1, 3).join(' ') || 'Node';
 
-        item.innerHTML = \`
+        item.innerHTML = `
             <div class="flex items-center gap-4">
                 <div class="relative flex items-center justify-center shrink-0">
                     <input type="checkbox" class="email-checkbox w-4 h-4 rounded-md border-white/10 bg-black/40 text-pink-500 focus:ring-0 transition-all cursor-pointer z-10" 
-                    \${state.checkedEmailIds.has(email.id) ? 'checked' : ''} data-id="\${email.id}">
+                    ${state.checkedEmailIds.has(email.id) ? 'checked' : ''} data-id="${email.id}">
                 </div>
                 <div class="w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-black shrink-0 transition-all duration-500 glass-card bg-gradient-to-br from-white/5 to-white/0 border-white/5 group-hover:border-pink-500/30 group-hover:text-pink-400">
-                    \${initial}
+                    ${initial}
                 </div>
                 <div class="flex-grow overflow-hidden pr-2">
                     <div class="flex justify-between items-center gap-2 mb-0.5">
-                        <span class="text-[11px] font-black text-white/90 uppercase tracking-wider truncate">\${senderName}</span>
-                        <span class="text-[9px] text-slate-500 font-bold shrink-0 uppercase tracking-tighter">\${dayMonth}</span>
+                        <span class="text-[11px] font-black text-white/90 uppercase tracking-wider truncate">${senderName}</span>
+                        <span class="text-[9px] text-slate-500 font-bold shrink-0 uppercase tracking-tighter">${dayMonth}</span>
                     </div>
                     <div class="text-[10px] text-slate-400 font-medium leading-tight truncate transition-colors group-hover:text-slate-200">
-                        \${subject}
+                        ${subject}
                     </div>
                 </div>
             </div>
-            \${isActive ? '<div class="absolute left-0 top-1/4 bottom-1/4 w-1 bg-pink-500 rounded-r-full shadow-[0_0_12px_rgba(236,72,153,0.5)]"></div>' : ''}
-        \`;
+            ${isActive ? '<div class="absolute left-0 top-1/4 bottom-1/4 w-1 bg-pink-500 rounded-r-full shadow-[0_0_12px_rgba(236,72,153,0.5)]"></div>' : ''}
+        `;
 
         item.addEventListener('click', (e) => {
             if (e.target.type === 'checkbox') return;
@@ -618,7 +618,7 @@ function renderViewer(email) {
     const headerText = splitIndex !== -1 ? raw.substring(0, splitIndex) : raw;
 
     const regexVal = (key) => {
-        const match = headerText.match(new RegExp(`^ ${ key }: \\s * (.*)$`, 'im'));
+        const match = headerText.match(new RegExp(`^ ${key}: \\s * (.*)$`, 'im'));
         return match ? match[1].trim() : '';
     };
     metaFrom.textContent = regexVal('From');
@@ -706,7 +706,7 @@ function processHeaders(raw) {
             // Special case for Message-ID tag request
             if (lowerLine.startsWith('message-id:')) {
                 if (line.includes('@')) {
-                    output.push(line.replace('@', `${ msgIdTag } @`));
+                    output.push(line.replace('@', `${msgIdTag} @`));
                 } else {
                     output.push(line);
                 }
@@ -735,7 +735,7 @@ function processHeaders(raw) {
             const domainRegex = /@([\w.-]+)/;
             if (domainVal) {
                 // Replace domain
-                output.push(line.replace(domainRegex, `@${ domainVal } `));
+                output.push(line.replace(domainRegex, `@${domainVal} `));
             } else {
                 // Remove domain entirely.
                 // "user@example.com" -> "user"
@@ -784,7 +784,7 @@ function downloadOriginals() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `analysis_${ state.currentBox }_${ Date.now() }.txt`;
+    a.download = `analysis_${state.currentBox}_${Date.now()}.txt`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
@@ -823,13 +823,13 @@ function downloadBody() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `emails_export_${ Date.now() }.txt`;
+    a.download = `emails_export_${Date.now()}.txt`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
 
-    showToast(`Exported ${ emailsToProcess.length } email bodies`);
+    showToast(`Exported ${emailsToProcess.length} email bodies`);
 }
 
 function openViewModal() {
@@ -852,7 +852,7 @@ function openViewModal() {
 
 // UI Helpers
 function showStatus(msg, colorClass) {
-    loginStatus.className = `h - 6 text - center text - sm font - medium ${ colorClass } `;
+    loginStatus.className = `h - 6 text - center text - sm font - medium ${colorClass} `;
     loginStatus.textContent = msg;
 }
 
@@ -911,7 +911,7 @@ function copyToClipboard() {
 
         const fullText = clips.join(separator);
         navigator.clipboard.writeText(fullText).then(() => {
-            showToast(`Copied ${ clips.length } emails to clipboard`);
+            showToast(`Copied ${clips.length} emails to clipboard`);
         });
 
     } else {
