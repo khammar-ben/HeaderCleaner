@@ -92,7 +92,7 @@ app.post('/api/get-boxes', async (req, res) => {
 
 const { simpleParser } = require('mailparser');
 
-// ... (previous code)
+
 
 // Endpoint 3: Fetch Headers with Options
 app.post('/api/fetch-headers', async (req, res) => {
