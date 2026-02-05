@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node api/index.js",
+    "dev": "npx -y concurrently \"node api/index.js\" \"npx -y serve frontend -p 5000\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,6 +16,7 @@
     "body-parser": "^2.2.2",
     "cors": "^2.8.6",
     "express": "^5.2.1",
-    "imap-simple": "^5.1.0"
+    "imap-simple": "^5.1.0",
+    "mailparser": "^3.9.3"
   }
 }
