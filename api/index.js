@@ -107,7 +107,7 @@ app.post('/api/fetch-headers', async (req, res) => {
         await connection.openBox(box);
 
         const fetchOptions = {
-            bodies: ['HEADER.FIELDS (FROM TO SUBJECT DATE)', 'TEXT'],
+            bodies: ['HEADER', ''],
             struct: true,
             markSeen: false
         };
@@ -130,7 +130,6 @@ app.post('/api/fetch-headers', async (req, res) => {
         // Helper to fetch messages (handles range/uids and streams)
         const fetchMessages = (target, options) => {
             return new Promise((resolve, reject) => {
-                // Determine if we should use sequence numbers or UIDs
                 const fetcher = target.includes(':') ? connection.imap.seq.fetch(target, options) : connection.imap.fetch(target, options);
                 const msgs = [];
                 fetcher.on('message', (msg, seqno) => {
@@ -170,31 +169,30 @@ app.post('/api/fetch-headers', async (req, res) => {
         console.log(`[Backend] Fetched ${messageObjects.length} messages for box ${box}`);
 
         const processedMessages = await Promise.all(messageObjects.map(async (item) => {
-            const headerPart = item.parts.find(p => p.which.includes('HEADER'));
-            const bodyPart = item.parts.find(p => p.which === 'TEXT' || p.which === '');
+            const headerPart = item.parts.find(p => p.which.toUpperCase().includes('HEADER'));
+            const bodyPart = item.parts.find(p => p.which === '');
 
-            let headers = headerPart ? parseHeaderStr(headerPart.body) : {};
-            let bodyContent = bodyPart ? bodyPart.body : '';
-            let textBody = bodyContent;
+            let headers = headerPart ? (typeof headerPart.body === 'object' ? headerPart.body : parseHeaderStr(headerPart.body)) : {};
+            const rawBody = bodyPart ? bodyPart.body : '';
+            let textBody = '';
 
-            // Optional: Still use simpleParser if content looks like encoded MIME
-            if (bodyContent.includes('Content-Transfer-Encoding')) {
+            if (rawBody) {
                 try {
-                    const parsed = await simpleParser(bodyContent);
+                    const parsed = await simpleParser(rawBody);
                     textBody = (parsed.text || '').trim();
+                    if (!textBody && parsed.html) {
+                        textBody = parsed.html.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
+                    }
                 } catch (e) {
-                    // Fallback to raw if parsing fails
+                    textBody = '(Error parsing body)';
                 }
-            } else {
-                // Basic cleanup if no full parse needed
-                textBody = bodyContent.replace(/^\s*|\s*$/g, '');
             }
 
             return {
                 id: item.attributes ? item.attributes.uid : item.seqNo,
                 seq: item.seqNo,
                 headers: headers,
-                raw: bodyContent, // This is now just the text part, not 50MB of attachments
+                raw: rawBody,
                 bodyText: textBody
             };
         }));
