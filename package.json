@@ -2,7 +2,7 @@
   "name": "extracting-project",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
     "dev": "npx -y concurrently \"node api/index.js\" \"npx -y serve frontend -p 5000\"",
