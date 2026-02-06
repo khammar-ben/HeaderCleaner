@@ -634,16 +634,19 @@ function processHeaders(raw) {
         skippingHeader = false; // We found a header to keep
 
         if (lowerLine.startsWith('from:')) {
-            // Transform "Name <user@domain>" to "Name<user>"
+            // Transform "Name <user@domain>" to "Name<user@domainVal>" or "Name<user>"
             let fromVal = line.substring(5).trim();
             const fromMatch = fromVal.match(/^(.*?)\s*<([^@>]+)@.*?>$/);
             if (fromMatch) {
                 const namePart = fromMatch[1].trim();
                 const userPart = fromMatch[2].trim();
-                output.push(`From: ${namePart}<${userPart}>`);
+                const suffix = domainVal ? `@${domainVal}` : '';
+                output.push(`From: ${namePart}<${userPart}${suffix}>`);
             } else {
                 // Fallback for address only
-                output.push(`From: ${fromVal.split('@')[0]}`);
+                const userPart = fromVal.split('@')[0];
+                const suffix = domainVal ? `@${domainVal}` : '';
+                output.push(`From: ${userPart}${suffix}`);
             }
         }
         else if (lowerLine.startsWith('to:')) {
