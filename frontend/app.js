@@ -596,7 +596,9 @@ function processHeaders(raw) {
         'feedback-id:',
         'x-mailin-eid:',
         'origin-messageid:',
-        'x-google-smtp-source:'
+        'x-google-smtp-source:',
+        'X-Google-DKIM-Signature',
+        'X-Gm-Message-State'
     ];
 
     for (let i = 0; i < lines.length; i++) {
