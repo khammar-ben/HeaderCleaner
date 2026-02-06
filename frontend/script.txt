@@ -1,0 +1,681 @@
+(function() {
+    // === 🛠️ CONFIG ===
+    const SEPARATOR = "__SEP__";
+    const PLACEHOLDER = "{{NEWS}}";
+    const BUTTON_SELECTOR = 'button[data-action-type="test_ips"]';
+    const CREATIVE_TEXTAREA_SELECTOR = 'textarea[name="creatives[value][]"]';
+    const HEADER_TEXTAREA_SELECTOR = 'textarea.header'; // Added header textarea selector
+    const RECIPIENT_SELECTOR = '#rcpt_to';
+
+    // === 🔴 CONTROL FLAGS ===
+    let isStopped = false;
+    let isPaused = false;
+    let currentIndex = 0;
+    let versions = [];
+    let originalCreativeTemplate = "";
+    let originalHeaderTemplate = "";
+    let originalRecipientEmail = "";
+    let recipientInput = null;
+    let creativeTextarea = null;
+    let headerTextarea = null;
+
+    // Wait for element
+    function waitForElement(selector, timeout = 10000) {
+        return new Promise((resolve) => {
+            const startTime = Date.now();
+            const check = () => {
+                const el = document.querySelector(selector);
+                if (el) {
+                    resolve(el);
+                } else if (Date.now() - startTime > timeout) {
+                    console.warn(`⏳ Timeout: ${selector} not found — continuing without it.`);
+                    resolve(null);
+                } else {
+                    setTimeout(check, 200);
+                }
+            };
+            check();
+        });
+    }
+
+    // Extract base email
+    function extractBaseEmail(email) {
+        if (!email || !email.includes('@')) return email;
+        const [local, domain] = email.split('@');
+        const cleanLocal = local.split('+')[0];
+        return `${cleanLocal}@${domain}`;
+    }
+
+    // Create button helper
+    function createButton(id, text, color, onClick) {
+        const btn = document.createElement('button');
+        btn.id = id;
+        btn.innerText = text;
+        btn.style.cssText = `
+            padding: 12px 24px;
+            background: ${color};
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            transition: transform 0.2s, opacity 0.2s;
+            margin: 5px;
+        `;
+        btn.onmouseover = () => btn.style.transform = "scale(1.05)";
+        btn.onmouseout = () => btn.style.transform = "scale(1)";
+        btn.onclick = onClick;
+        return btn;
+    }
+
+    // Update textarea helper
+    function updateTextarea(textarea, value) {
+        if (!textarea) return;
+        textarea.focus();
+        textarea.value = value;
+        ['input', 'change'].forEach(eventType => {
+            textarea.dispatchEvent(new Event(eventType, { bubbles: true }));
+        });
+        textarea.blur();
+    }
+
+    // Main initialization
+    Promise.all([
+        waitForElement(CREATIVE_TEXTAREA_SELECTOR),
+        waitForElement(HEADER_TEXTAREA_SELECTOR)
+    ])
+        .then(async ([creative, header]) => {
+            if (!creative) {
+                alert("❌ Creative textarea not found. Check selector: " + CREATIVE_TEXTAREA_SELECTOR);
+                return;
+            }
+
+            console.log("✅ Creative textarea found:", creative);
+            creativeTextarea = creative;
+            originalCreativeTemplate = creative.value;
+
+            if (header) {
+                console.log("✅ Header textarea found:", header);
+                headerTextarea = header;
+                originalHeaderTemplate = header.value;
+                
+                if (!originalHeaderTemplate.includes(PLACEHOLDER)) {
+                    console.warn("⚠️ Header template does not contain {{NEWS}}");
+                }
+            } else {
+                console.warn("⚠️ Header textarea not found - will only update creative");
+            }
+
+            if (!originalCreativeTemplate.includes(PLACEHOLDER)) {
+                console.warn("⚠️ Creative template does not contain {{NEWS}}");
+            }
+
+            // Wait for recipient input
+            recipientInput = await waitForElement(RECIPIENT_SELECTOR);
+            if (recipientInput) {
+                console.log("✅ Recipient input found:", recipientInput);
+                originalRecipientEmail = extractBaseEmail(recipientInput.value.trim());
+                console.log("📧 Base recipient saved:", originalRecipientEmail);
+            }
+
+            // Remove old buttons
+            ['automation-btn', 'stop-btn', 'continue-btn', 'delete-btn'].forEach(id => {
+                const existing = document.querySelector(`#${id}`);
+                if (existing) existing.remove();
+            });
+
+            // Create button container
+            const container = document.createElement('div');
+            container.id = 'automation-controls';
+            container.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 99999;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            `;
+
+            // Start button
+            const startBtn = createButton(
+                'automation-btn',
+                '🤖 Start {{NEWS}} Replacement + Test',
+                'linear-gradient(135deg, #6e8efb, #a777e3)',
+                handleStart
+            );
+
+            // Stop button
+            const stopBtn = createButton(
+                'stop-btn',
+                '⏹️ Stop Testing',
+                '#f44336',
+                handleStop
+            );
+            stopBtn.style.display = 'none';
+
+            // Continue button
+            const continueBtn = createButton(
+                'continue-btn',
+                '▶️ Continue Testing',
+                '#4CAF50',
+                handleContinue
+            );
+            continueBtn.style.display = 'none';
+
+            // Delete button
+            const deleteBtn = createButton(
+                'delete-btn',
+                '🗑️ Delete & Reset',
+                '#9E9E9E',
+                handleDelete
+            );
+
+            container.appendChild(startBtn);
+            container.appendChild(stopBtn);
+            container.appendChild(continueBtn);
+            container.appendChild(deleteBtn);
+            document.body.appendChild(container);
+
+            // === INFO BOX ===
+            const infoBox = document.createElement('div');
+            infoBox.id = 'test-info-box';
+            infoBox.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 99999;
+                background: rgba(255, 255, 255, 0.95);
+                border: 2px solid #6e8efb;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                min-width: 350px;
+                max-width: 500px;
+                display: none;
+            `;
+            infoBox.innerHTML = `
+                <div style="border-bottom: 2px solid #6e8efb; padding-bottom: 10px; margin-bottom: 15px;">
+                    <h3 style="margin: 0; color: #6e8efb; font-size: 18px;">📊 Test Progress</h3>
+                </div>
+                <div id="info-content" style="font-size: 14px; line-height: 1.8;">
+                    <div style="margin-bottom: 10px;">
+                        <strong>Status:</strong> <span id="info-status" style="color: #666;">Idle</span>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Current Test:</strong> <span id="info-current">-</span>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Total Tests:</strong> <span id="info-total">-</span>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Progress:</strong> 
+                        <div style="background: #e0e0e0; border-radius: 10px; height: 20px; margin-top: 5px; overflow: hidden;">
+                            <div id="info-progress-bar" style="background: linear-gradient(90deg, #6e8efb, #a777e3); height: 100%; width: 0%; transition: width 0.3s;"></div>
+                        </div>
+                        <span id="info-percentage" style="font-size: 12px; color: #666;">0%</span>
+                    </div>
+                    <div style="margin-bottom: 10px; padding: 10px; background: #f5f5f5; border-radius: 8px; max-height: 150px; overflow-y: auto;">
+                        <strong>Current Content:</strong>
+                        <div id="info-preview" style="margin-top: 5px; font-size: 12px; color: #333; font-family: monospace; white-space: pre-wrap; word-break: break-word;">-</div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Recipient:</strong> <span id="info-recipient" style="color: #666; font-size: 12px;">-</span>
+                    </div>
+                    <div style="font-size: 12px; color: #999;">
+                        <strong>Last Updated:</strong> <span id="info-time">-</span>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(infoBox);
+
+            // === CONFIG BOX ===
+            const configBox = document.createElement('div');
+            configBox.id = 'config-box';
+            configBox.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                z-index: 99999;
+                background: rgba(255, 255, 255, 0.95);
+                border: 2px solid #a777e3;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                min-width: 350px;
+                max-width: 500px;
+            `;
+            configBox.innerHTML = `
+                <div style="border-bottom: 2px solid #a777e3; padding-bottom: 10px; margin-bottom: 15px;">
+                    <h3 style="margin: 0; color: #a777e3; font-size: 18px;">⚙️ Email Configuration</h3>
+                </div>
+                <div style="font-size: 14px;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
+                            📬 Gmail Address:
+                        </label>
+                        <input 
+                            type="email" 
+                            id="gmail-address-input" 
+                            value="test"
+                            placeholder="e.g., yourname@gmail.com or just 'test'"
+                            style="
+                                width: 100%;
+                                padding: 10px;
+                                border: 2px solid #ddd;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                box-sizing: border-box;
+                                font-family: 'Segoe UI', monospace;
+                            "
+                        />
+                        <div style="margin-top: 5px; font-size: 11px; color: #999;">
+                            💡 Enter full email or just the local part (before @gmail.com)
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
+                            📧 Email Prefix (for +addressing):
+                        </label>
+                        <input 
+                            type="text" 
+                            id="email-prefix-input" 
+                            value="test"
+                            placeholder="e.g., test, campaign, promo"
+                            style="
+                                width: 100%;
+                                padding: 10px;
+                                border: 2px solid #ddd;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                box-sizing: border-box;
+                                font-family: 'Segoe UI', monospace;
+                            "
+                        />
+                        <div style="margin-top: 8px; font-size: 12px; color: #666; line-height: 1.5;">
+                            <strong>Example:</strong><br/>
+                            Gmail = "<strong>test</strong>" + Prefix = "<strong>test</strong>" → <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 4px;">test+test1@gmail.com</code><br/>
+                            Gmail = "<strong>myname</strong>" + Prefix = "<strong>campaign</strong>" → <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 4px;">myname+campaign1@gmail.com</code>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input 
+                                type="checkbox" 
+                                id="use-custom-email-checkbox" 
+                                style="margin-right: 8px; width: 18px; height: 18px; cursor: pointer;"
+                            />
+                            <span style="font-size: 13px; color: #555;">Override recipient email with custom Gmail address</span>
+                        </label>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input 
+                                type="checkbox" 
+                                id="use-prefix-checkbox" 
+                                checked
+                                style="margin-right: 8px; width: 18px; height: 18px; cursor: pointer;"
+                            />
+                            <span style="font-size: 13px; color: #555;">Enable email prefix modification</span>
+                        </label>
+                    </div>
+                    <div style="padding: 10px; background: #e7f3ff; border-radius: 8px; font-size: 12px; color: #004085; border-left: 4px solid #2196F3;">
+                        📌 <strong>Current Preview:</strong><br/>
+                        <span id="email-preview" style="font-family: monospace; font-weight: bold;">test+test1@gmail.com</span>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(configBox);
+
+            // Add live preview update
+            const gmailInput = document.getElementById('gmail-address-input');
+            const prefixInput = document.getElementById('email-prefix-input');
+            const usePrefixCheckbox = document.getElementById('use-prefix-checkbox');
+            const previewSpan = document.getElementById('email-preview');
+
+            function updateEmailPreview() {
+                let gmail = gmailInput.value.trim() || 'test';
+                const prefix = prefixInput.value.trim() || 'test';
+                const usePrefix = usePrefixCheckbox.checked;
+
+                // Clean up gmail input
+                if (!gmail.includes('@')) {
+                    gmail = gmail + '@gmail.com';
+                } else if (!gmail.endsWith('@gmail.com')) {
+                    gmail = gmail.split('@')[0] + '@gmail.com';
+                }
+
+                const [local, domain] = gmail.split('@');
+                const previewEmail = usePrefix ? `${local}+${prefix}1@${domain}` : `${local}@${domain}`;
+                previewSpan.textContent = previewEmail;
+            }
+
+            gmailInput.addEventListener('input', updateEmailPreview);
+            prefixInput.addEventListener('input', updateEmailPreview);
+            usePrefixCheckbox.addEventListener('change', updateEmailPreview);
+
+            // Initial preview
+            updateEmailPreview();
+
+            // === BUTTON HANDLERS ===
+
+            // Update info box helper
+            function updateInfoBox(status, current, total, content, recipient) {
+                infoBox.style.display = 'block';
+                
+                document.getElementById('info-status').textContent = status;
+                document.getElementById('info-status').style.color = 
+                    status === 'Running' ? '#4CAF50' : 
+                    status === 'Paused' ? '#FF9800' : 
+                    status === 'Completed' ? '#2196F3' : '#666';
+                
+                document.getElementById('info-current').textContent = current || '-';
+                document.getElementById('info-total').textContent = total || '-';
+                
+                if (current && total) {
+                    const percentage = Math.round((current / total) * 100);
+                    document.getElementById('info-progress-bar').style.width = percentage + '%';
+                    document.getElementById('info-percentage').textContent = percentage + '%';
+                }
+                
+                document.getElementById('info-preview').textContent = content ? 
+                    (content.length > 200 ? content.substring(0, 200) + '...' : content) : '-';
+                
+                document.getElementById('info-recipient').textContent = recipient || '-';
+                document.getElementById('info-time').textContent = new Date().toLocaleTimeString();
+            }
+
+            function hideInfoBox() {
+                infoBox.style.display = 'none';
+            }
+
+            async function handleStart() {
+                startBtn.disabled = true;
+                startBtn.innerText = "⏳ Opening file dialog...";
+                startBtn.style.opacity = "0.7";
+
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.txt';
+
+                input.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) {
+                        resetStartButton();
+                        return;
+                    }
+
+                    try {
+                        const text = await file.text();
+                        versions = text.split(SEPARATOR).map(v => v.trim()).filter(v => v.length > 0);
+
+                        if (versions.length === 0) {
+                            alert("⚠️ No valid versions found in file.");
+                            resetStartButton();
+                            return;
+                        }
+
+                        const testButton = document.querySelector(BUTTON_SELECTOR);
+                        if (!testButton) {
+                            alert("❌ Button not found. Check BUTTON_SELECTOR: " + BUTTON_SELECTOR);
+                            resetStartButton();
+                            return;
+                        }
+
+                        if (!confirm(`✅ Found ${versions.length} versions. Start testing?`)) {
+                            resetStartButton();
+                            return;
+                        }
+
+                        // Reset state
+                        isStopped = false;
+                        isPaused = false;
+                        currentIndex = 0;
+
+                        // Update UI
+                        startBtn.style.display = 'none';
+                        stopBtn.style.display = 'block';
+                        continueBtn.style.display = 'none';
+
+                        // Show info box
+                        updateInfoBox('Running', 0, versions.length, 'Starting tests...', originalRecipientEmail);
+
+                        await runTests(testButton);
+
+                    } catch (err) {
+                        console.error("💥 Script error:", err);
+                        alert("❌ " + err.message);
+                        resetStartButton();
+                    }
+                };
+
+                input.click();
+            }
+
+            function handleStop() {
+                if (confirm('⏹️ Stop testing? You can continue later.')) {
+                    isPaused = true;
+                    console.log(`⏸️ Testing paused at index ${currentIndex}`);
+                    
+                    stopBtn.style.display = 'none';
+                    continueBtn.style.display = 'block';
+                    startBtn.innerText = `⏸️ Paused at ${currentIndex}/${versions.length}`;
+                    startBtn.style.background = '#FF9800';
+                    startBtn.style.display = 'block';
+
+                    // Update info box
+                    updateInfoBox('Paused', currentIndex, versions.length, 
+                        versions[currentIndex - 1] || 'N/A', 
+                        recipientInput ? recipientInput.value : originalRecipientEmail);
+                }
+            }
+
+            function handleContinue() {
+                if (versions.length === 0) {
+                    alert('❌ No tests to continue. Please start a new test.');
+                    return;
+                }
+
+                if (confirm(`▶️ Continue from test ${currentIndex + 1}/${versions.length}?`)) {
+                    isPaused = false;
+                    continueBtn.style.display = 'none';
+                    stopBtn.style.display = 'block';
+                    startBtn.style.display = 'none';
+
+                    // Update info box
+                    updateInfoBox('Running', currentIndex, versions.length, 
+                        'Resuming tests...', 
+                        recipientInput ? recipientInput.value : originalRecipientEmail);
+
+                    const testButton = document.querySelector(BUTTON_SELECTOR);
+                    if (testButton) {
+                        runTests(testButton);
+                    }
+                }
+            }
+
+            function handleDelete() {
+                if (confirm('🗑️ Delete all progress and reset? This cannot be undone.')) {
+                    // Reset state
+                    isStopped = true;
+                    isPaused = false;
+                    currentIndex = 0;
+                    versions = [];
+
+                    // Restore original templates
+                    updateTextarea(creativeTextarea, originalCreativeTemplate);
+                    updateTextarea(headerTextarea, originalHeaderTemplate);
+
+                    // Restore recipient
+                    if (recipientInput && originalRecipientEmail) {
+                        recipientInput.value = originalRecipientEmail;
+                        ['input', 'change'].forEach(eventType => {
+                            recipientInput.dispatchEvent(new Event(eventType, { bubbles: true }));
+                        });
+                    }
+
+                    // Reset UI
+                    resetStartButton();
+                    stopBtn.style.display = 'none';
+                    continueBtn.style.display = 'none';
+                    hideInfoBox();
+
+                    console.log("✅ All progress deleted and reset to original state");
+                    alert("✅ Progress deleted. Ready for new test.");
+                }
+            }
+
+            // === MAIN TEST LOOP ===
+            async function runTests(testButton) {
+                startBtn.innerText = `🚀 Running... ${currentIndex}/${versions.length}`;
+                startBtn.style.background = "#ff9800";
+
+                for (let i = currentIndex; i < versions.length; i++) {
+                    // Check if stopped or paused
+                    if (isStopped) {
+                        console.log("🛑 Testing stopped by user");
+                        break;
+                    }
+
+                    if (isPaused) {
+                        console.log("⏸️ Testing paused by user");
+                        currentIndex = i;
+                        return;
+                    }
+
+                    const version = versions[i];
+                    console.log(`\n🔷 TEST ${i + 1}/${versions.length} — STARTING at ${new Date().toLocaleTimeString()}`);
+                    console.log(`📝 Replacing {{NEWS}} → "${version}"`);
+
+                    // Update creative textarea
+                    let updatedCreativeTemplate = originalCreativeTemplate.replace(new RegExp(PLACEHOLDER, 'g'), version);
+                    updateTextarea(creativeTextarea, updatedCreativeTemplate);
+                    console.log("✅ Creative textarea updated");
+
+                    // Update header textarea if it exists
+                    if (headerTextarea) {
+                        let updatedHeaderTemplate = originalHeaderTemplate.replace(new RegExp(PLACEHOLDER, 'g'), version);
+                        updateTextarea(headerTextarea, updatedHeaderTemplate);
+                        console.log("✅ Header textarea updated");
+                    }
+
+                    // Handle recipient
+                    let currentRecipient = originalRecipientEmail;
+                    if (recipientInput) {
+                        // Get user configuration
+                        const useCustomEmailCheckbox = document.getElementById('use-custom-email-checkbox');
+                        const gmailAddressInput = document.getElementById('gmail-address-input');
+                        const usePrefixCheckbox = document.getElementById('use-prefix-checkbox');
+                        const prefixInput = document.getElementById('email-prefix-input');
+                        
+                        const useCustomEmail = useCustomEmailCheckbox ? useCustomEmailCheckbox.checked : false;
+                        const usePrefix = usePrefixCheckbox ? usePrefixCheckbox.checked : true;
+                        const customPrefix = prefixInput ? prefixInput.value.trim() : 'test';
+                        
+                        let baseEmail = originalRecipientEmail;
+                        
+                        // If custom email is enabled, use it instead
+                        if (useCustomEmail && gmailAddressInput) {
+                            let customGmail = gmailAddressInput.value.trim() || 'test';
+                            
+                            // Normalize the Gmail address
+                            if (!customGmail.includes('@')) {
+                                customGmail = customGmail + '@gmail.com';
+                            } else if (!customGmail.endsWith('@gmail.com')) {
+                                customGmail = customGmail.split('@')[0] + '@gmail.com';
+                            }
+                            
+                            baseEmail = customGmail;
+                            console.log(`📧 Using custom Gmail address: ${baseEmail}`);
+                        }
+                        
+                        let newRecipient = baseEmail;
+
+                        if (usePrefix && baseEmail.endsWith('@gmail.com')) {
+                            const [local, domain] = baseEmail.split('@');
+                            newRecipient = `${local}+${customPrefix}${i + 1}@${domain}`;
+                            console.log(`📬 Setting recipient to: ${newRecipient} (using prefix: "${customPrefix}")`);
+                        }
+
+                        recipientInput.value = newRecipient;
+                        currentRecipient = newRecipient;
+                        ['input', 'change'].forEach(eventType => {
+                            recipientInput.dispatchEvent(new Event(eventType, { bubbles: true }));
+                        });
+                    }
+
+                    // Update info box with current test details
+                    updateInfoBox('Running', i + 1, versions.length, version, currentRecipient);
+
+                    // Click button
+                    console.log(`🖱️ Clicking button for test ${i + 1}...`);
+                    await new Promise(r => setTimeout(r, 300));
+                    testButton.click();
+
+                    startBtn.innerText = `🚀 Running... ${i + 1}/${versions.length}`;
+                    currentIndex = i + 1;
+
+                    // Delay between tests
+                    await new Promise(r => setTimeout(r, 5000));
+                }
+
+                // Check if completed or stopped
+                if (!isPaused && currentIndex >= versions.length) {
+                    await finalizeTests();
+                }
+            }
+
+            async function finalizeTests() {
+                console.log("⏳ Waiting 4s after final test...");
+                await new Promise(r => setTimeout(r, 4000));
+
+                // Restore templates
+                updateTextarea(creativeTextarea, originalCreativeTemplate);
+                console.log("✅ Creative template restored with {{NEWS}}");
+                
+                if (headerTextarea) {
+                    updateTextarea(headerTextarea, originalHeaderTemplate);
+                    console.log("✅ Header template restored with {{NEWS}}");
+                }
+
+                // Restore recipient
+                if (recipientInput && originalRecipientEmail) {
+                    recipientInput.value = originalRecipientEmail;
+                    ['input', 'change'].forEach(eventType => {
+                        recipientInput.dispatchEvent(new Event(eventType, { bubbles: true }));
+                    });
+                    console.log("✅ Recipient restored to:", originalRecipientEmail);
+                }
+
+                startBtn.style.background = "#4CAF50";
+                startBtn.innerText = "✅ DONE!";
+                stopBtn.style.display = 'none';
+
+                // Update info box with completion
+                updateInfoBox('Completed', versions.length, versions.length, 
+                    'All tests completed successfully!', originalRecipientEmail);
+
+                setTimeout(() => {
+                    resetStartButton();
+                    continueBtn.style.display = 'none';
+                    alert(`🎉 All ${versions.length} versions processed!`);
+                }, 3000);
+            }
+
+            function resetStartButton() {
+                startBtn.disabled = false;
+                startBtn.innerText = "🤖 Start {{NEWS}} Replacement + Test";
+                startBtn.style.opacity = "1";
+                startBtn.style.background = "linear-gradient(135deg, #6e8efb, #a777e3)";
+                startBtn.style.display = 'block';
+            }
+        })
+        .catch(err => {
+            console.error("❌ Fatal error:", err);
+            alert("❌ Script failed: " + err.message);
+        });
+})();

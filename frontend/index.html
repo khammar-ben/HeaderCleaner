@@ -8,21 +8,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="transition-colors duration-500 selection:bg-pink-500 selection:text-white min-h-screen font-sans overflow-x-hidden relative">
+    <body class="transition-colors duration-500 selection:bg-sky-500 selection:text-white min-h-screen font-sans overflow-x-hidden relative">
 
     <!-- Animated Background -->
     <div class="fixed inset-0 z-[-1] opacity-30 dark:opacity-20 pointer-events-none">
-        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-        <div class="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div class="absolute bottom-[-20%] left-[20%] w-[40%] h-[40%] bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-600 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
+        <div class="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-sky-600 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
+        <div class="absolute bottom-[-20%] left-[20%] w-[40%] h-[40%] bg-teal-600 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
     </div>
 
     <div class="container mx-auto px-4 py-4 h-screen flex flex-col">
         <!-- Header -->
         <header class="flex justify-between items-center mb-4 fade-in">
             <div class="flex items-center gap-3">
-                <i class="fa-solid fa-shield-halved text-3xl text-pink-500"></i>
-                <h1 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-500 uppercase tracking-tighter">CMH13 Analysis</h1>
+                <i class="fa-solid fa-shield-halved text-3xl text-sky-500"></i>
+                <h1 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-cyan-500 uppercase tracking-tighter">CMH13 Analysis</h1>
             </div>
             <button id="themeToggle" class="glass-button p-2 rounded-xl w-10 h-10 flex items-center justify-center transition-all active:scale-95 shadow-lg">
                 <i class="fa-solid fa-moon text-lg"></i>
@@ -35,7 +35,7 @@
             <!-- Login View -->
             <section id="loginSection" class="w-full max-w-lg mx-auto my-auto relative z-10 transition-all duration-500">
                 <div class="glass-card p-10 rounded-3xl shadow-2xl border-white/10 overflow-hidden relative">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 to-purple-600"></div>
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-500 to-cyan-600"></div>
                     <div class="text-center mb-8">
                         <h2 class="text-4xl font-black mb-2 uppercase tracking-tight text-white">Connect Inbox</h2>
                         <p class="text-[11px] font-bold text-slate-500 uppercase tracking-[0.2em]">Secure Header Protocol Access</p>
@@ -45,21 +45,21 @@
                         <div class="space-y-2">
                             <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Email Address</label>
                             <div class="relative">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-pink-500/50"><i class="fa-solid fa-at"></i></span>
-                                <input type="email" id="email" class="glass-input w-full pl-12 pr-4 py-4 rounded-xl focus:outline-none transition-all placeholder-slate-600 text-sm font-medium" placeholder="user@gmail.com" required>
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sky-500/50"><i class="fa-solid fa-at"></i></span>
+                                <input type="email" id="email" name="email" autocomplete="email" class="glass-input w-full pl-12 pr-4 py-4 rounded-xl focus:outline-none transition-all placeholder-slate-600 text-sm font-medium" placeholder="user@gmail.com" required>
                             </div>
                         </div>
 
                         <div class="space-y-2">
                             <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">App Password</label>
                             <div class="relative">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-pink-500/50"><i class="fa-solid fa-unlock-keyhole"></i></span>
-                                <input type="password" id="password" class="glass-input w-full pl-12 pr-4 py-4 rounded-xl focus:outline-none transition-all placeholder-slate-600 text-sm font-medium" placeholder="xxxx xxxx xxxx xxxx" required>
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sky-500/50"><i class="fa-solid fa-unlock-keyhole"></i></span>
+                                <input type="password" id="password" name="password" autocomplete="current-password" class="glass-input w-full pl-12 pr-4 py-4 rounded-xl focus:outline-none transition-all placeholder-slate-600 text-sm font-medium" placeholder="xxxx xxxx xxxx xxxx" required>
                             </div>
                             <p class="text-[9px] text-slate-600 mt-2 font-bold uppercase tracking-wider ml-1">Data held in RAM — Never stored</p>
                         </div>
 
-                        <button type="submit" id="connectBtn" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black py-4 px-6 rounded-xl transition-all active:scale-[0.98] shadow-xl shadow-pink-500/20 flex items-center justify-center gap-3 uppercase tracking-widest text-xs">
+                        <button type="submit" id="connectBtn" class="w-full bg-gradient-to-r from-sky-500 to-cyan-600 hover:from-sky-600 hover:to-cyan-700 text-white font-black py-4 px-6 rounded-xl transition-all active:scale-[0.98] shadow-xl shadow-sky-500/20 flex items-center justify-center gap-3 uppercase tracking-widest text-xs">
                             <span>Initialize link</span>
                             <i class="fa-solid fa-plug-circle-check"></i>
                         </button>
@@ -77,7 +77,7 @@
                     <div class="p-4 border-b border-white/5 bg-white/5 space-y-4 shrink-0">
                         <div class="flex justify-between items-center">
                             <h3 class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Node Headers</h3>
-                            <button id="refreshBtn" class="w-8 h-8 rounded-lg glass-button flex items-center justify-center hover:rotate-180 transition-transform duration-500 text-pink-500"><i class="fa-solid fa-arrows-rotate"></i></button>
+                            <button id="refreshBtn" class="w-8 h-8 rounded-lg glass-button flex items-center justify-center hover:rotate-180 transition-transform duration-500 text-sky-500"><i class="fa-solid fa-arrows-rotate"></i></button>
                         </div>
                         
                         <!-- Filters -->
@@ -91,13 +91,13 @@
                                 <input id="rangeStart" type="text" placeholder="START" class="w-1/2 glass-input rounded-xl px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-center">
                                 <input id="rangeEnd" type="text" placeholder="END" class="w-1/2 glass-input rounded-xl px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-center">
                             </div>
-                            <button id="applyRangeBtn" class="w-full bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 text-[10px] font-black uppercase tracking-widest py-2.5 rounded-xl transition-all border border-pink-500/10 active:scale-95 mb-1">Sync Range</button>
+                            <button id="applyRangeBtn" class="w-full bg-sky-500/10 hover:bg-sky-500/20 text-sky-500 text-[10px] font-black uppercase tracking-widest py-2.5 rounded-xl transition-all border border-sky-500/10 active:scale-95 mb-1">Sync Range</button>
                             
                             <!-- Advanced Config -->
                             <div class="border-t border-white/5 pt-3 space-y-2">
-                                <div id="toggleRules" class="flex justify-between items-center cursor-pointer group hover:text-pink-400 transition-colors">
-                                    <p class="text-[9px] text-slate-600 uppercase tracking-[0.2em] font-black group-hover:text-pink-400 transition-colors">Optimization Rules</p>
-                                    <i class="fa-solid fa-chevron-up text-[9px] text-slate-600 group-hover:text-pink-400 transition-transform duration-300 transform" id="rulesCaret"></i>
+                                <div id="toggleRules" class="flex justify-between items-center cursor-pointer group hover:text-sky-400 transition-colors">
+                                    <p class="text-[9px] text-slate-600 uppercase tracking-[0.2em] font-black group-hover:text-sky-400 transition-colors">Optimization Rules</p>
+                                    <i class="fa-solid fa-chevron-up text-[9px] text-slate-600 group-hover:text-sky-400 transition-transform duration-300 transform" id="rulesCaret"></i>
                                 </div>
                                 
                                 <div id="rulesContent" class="grid transition-all duration-300 overflow-hidden">
@@ -106,11 +106,12 @@
                                         <input type="text" id="msgIdTag" value="[EID]" placeholder="MSG-ID TAG" class="w-full glass-input rounded-xl px-4 py-2 text-[11px] font-bold uppercase tracking-widest">
                                         
                                         <div class="space-y-1 pt-1 overflow-y-auto max-h-[120px] custom-scrollbar">
-                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="replaceDate" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-pink-500 transition-all" checked> <span class="text-[9px] font-bold text-slate-500 group-hover:text-pink-400 transition-colors uppercase tracking-wider">Date -> [DATE]</span></label>
-                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="replaceTo" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-pink-500 transition-all" checked> <span class="text-[9px] font-bold text-slate-500 group-hover:text-pink-400 transition-colors uppercase tracking-wider">To -> [*to]</span></label>
-                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="keepReceived" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-pink-500 transition-all" checked> <span class="text-[9px] font-bold text-slate-500 group-hover:text-pink-400 transition-colors uppercase tracking-wider">Keep Received</span></label>
-                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="keepReplyTo" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-pink-500 transition-all" checked> <span class="text-[9px] font-bold text-slate-500 group-hover:text-pink-400 transition-colors uppercase tracking-wider">Keep Reply-To</span></label>
-                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="addCc" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-pink-500 transition-all"> <span class="text-[9px] font-bold text-slate-500 group-hover:text-pink-400 transition-colors uppercase tracking-wider">Add Cc: [*to]</span></label>
+                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="replaceDate" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-sky-500 transition-all" checked> <span class="text-[9px] font-bold text-slate-500 group-hover:text-sky-400 transition-colors uppercase tracking-wider">Date -> [DATE]</span></label>
+                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="replaceTo" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-sky-500 transition-all" checked> <span class="text-[9px] font-bold text-slate-500 group-hover:text-sky-400 transition-colors uppercase tracking-wider">To -> [*to]</span></label>
+                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="keepReceived" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-sky-500 transition-all" checked> <span class="text-[9px] font-bold text-slate-500 group-hover:text-sky-400 transition-colors uppercase tracking-wider">Keep Received</span></label>
+                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="keepReplyTo" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-sky-500 transition-all" checked> <span class="text-[9px] font-bold text-slate-500 group-hover:text-sky-400 transition-colors uppercase tracking-wider">Keep Reply-To</span></label>
+                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="addCc" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-sky-500 transition-all"> <span class="text-[9px] font-bold text-slate-500 group-hover:text-sky-400 transition-colors uppercase tracking-wider">Add Cc: [*to]</span></label>
+                                            <label class="flex items-center gap-3 cursor-pointer group"><input type="checkbox" id="removeBody" class="w-3.5 h-3.5 rounded-md border-white/10 bg-black/20 text-sky-500 transition-all"> <span class="text-[9px] font-bold text-slate-500 group-hover:text-sky-400 transition-colors uppercase tracking-wider">Remove email body</span></label>
                                         </div>
                                     </div>
                                 </div>
@@ -136,23 +137,23 @@
                     
                     <!-- Top Ribbon: Sidebar Toggle, Mode and Viewer Config -->
                     <div class="flex items-center gap-3 shrink-0">
-                        <button id="sidebarToggle" class="glass-button w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-pink-500 transition active:scale-95 shadow-lg">
+                        <button id="sidebarToggle" class="glass-button w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-sky-500 transition active:scale-95 shadow-lg">
                             <i class="fa-solid fa-bars-staggered"></i>
                         </button>
 
                         <div class="glass-card p-1 rounded-xl flex items-center gap-1 border-white/5 shadow-xl">
-                            <button id="btnRaw" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest bg-pink-500 text-white shadow-lg shadow-pink-500/20 transition-all">Raw Source</button>
-                            <button id="btnCleaned" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-pink-400 transition-all">Anonymized</button>
+                            <button id="btnRaw" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest bg-sky-500 text-white shadow-lg shadow-sky-500/20 transition-all">Raw Source</button>
+                            <button id="btnCleaned" class="px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-sky-400 transition-all">Anonymized</button>
                         </div>
                         
                         <div class="flex-grow flex items-center gap-2 overflow-x-auto no-scrollbar custom-scrollbar">
                             <button id="downloadBtn" class="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl glass-button text-[9px] font-black uppercase tracking-widest text-blue-500">
                                 <i class="fa-solid fa-cloud-arrow-down"></i> Export
                             </button>
-                            <button id="viewBtn" class="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl glass-button text-[9px] font-black uppercase tracking-widest text-purple-500">
+                            <button id="viewBtn" class="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl glass-button text-[9px] font-black uppercase tracking-widest text-cyan-500">
                                 <i class="fa-solid fa-layer-group"></i> View all selected
                             </button>
-                            <button id="copyBtn" class="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl glass-button text-[9px] font-black uppercase tracking-widest text-pink-500">
+                            <button id="copyBtn" class="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl glass-button text-[9px] font-black uppercase tracking-widest text-sky-500">
                                 <i class="fa-regular fa-copy"></i> Copy
                             </button>
                             <div class="h-6 w-[1px] bg-white/10 shrink-0 mx-1"></div>
@@ -162,9 +163,9 @@
                         </div>
                     </div>
 
-                    <!-- Row 3: Viewer -->
-                    <div class="glass-card flex-grow rounded-3xl p-1 overflow-hidden relative border-white/10 shadow-3xl bg-black/20 min-h-0">
-                        <!-- Empty State (Matches Screenshot) -->
+                    <!-- Email List in Main Area -->
+                    <div class="glass-card flex-grow rounded-3xl p-6 overflow-hidden relative border-white/10 shadow-3xl bg-black/20 min-h-0 flex flex-col">
+                        <!-- Empty State -->
                         <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                             <div class="p-8 rounded-full bg-white/[0.01] border border-white/5 mb-6">
                                 <i class="fa-solid fa-terminal text-6xl text-slate-800/50"></i>
@@ -173,25 +174,62 @@
                             <div id="instructionText" class="mt-4 text-[10px] font-black text-slate-700 uppercase tracking-[0.3em] animate-pulse">Waiting for selection...</div>
                         </div>
                         
-                        <div id="contentArea" class="hidden h-full flex flex-col">
-                            <div class="flex items-center justify-between mb-4 pb-4 border-b border-white/5">
-                                <div class="flex items-center gap-10">
-                                    <div class="space-y-0.5">
-                                        <span class="text-[9px] uppercase tracking-widest font-black text-slate-600">Source Protocol</span>
-                                        <div id="metaFrom" class="text-xs font-mono text-pink-300 bg-pink-500/5 px-2 py-0.5 rounded border border-pink-500/10"></div>
-                                    </div>
-                                    <div class="space-y-0.5">
-                                        <span class="text-[9px] uppercase tracking-widest font-black text-slate-600">Subject identifier</span>
-                                        <div id="metaSubject" class="text-xs font-bold text-white truncate max-w-[400px]"></div>
-                                    </div>
-                                </div>
-                                <div class="px-3 py-1 bg-black/40 rounded-full border border-white/10 flex items-center gap-2">
-                                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_var(--accent-emerald)]"></div>
-                                    <span class="text-[8px] font-black uppercase tracking-widest text-emerald-500">Live Buffer</span>
-                                </div>
+                        <!-- Email List -->
+                        <div id="mainEmailList" class="flex-grow overflow-y-auto custom-scrollbar space-y-3">
+                            <!-- Email items will be injected here by JS -->
+                        </div>
+
+                        <!-- Focused Content Viewer (Gmail Style) -->
+                        <div id="contentArea" class="hidden flex-grow flex flex-col min-h-0">
+                            <!-- Header Summary Table -->
+                            <div class="bg-white/5 rounded-2xl border border-white/10 p-6 mb-6 overflow-x-auto shadow-inner">
+                                <table class="w-full text-left text-[11px]">
+                                    <tbody class="divide-y divide-white/5">
+                                        <tr>
+                                            <td class="py-2.5 pr-6 font-black text-slate-500 uppercase tracking-widest w-32">Message-ID</td>
+                                            <td id="metaId" class="py-2.5 text-slate-300 font-mono break-all"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 pr-6 font-black text-slate-500 uppercase tracking-widest">Created at:</td>
+                                            <td id="metaDate" class="py-2.5 text-slate-300"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 pr-6 font-black text-slate-500 uppercase tracking-widest">From:</td>
+                                            <td id="metaFrom" class="py-2.5 text-slate-300 break-all font-medium"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 pr-6 font-black text-slate-500 uppercase tracking-widest">To:</td>
+                                            <td id="metaTo" class="py-2.5 text-slate-300 break-all"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 pr-6 font-black text-slate-500 uppercase tracking-widest">Subject:</td>
+                                            <td id="metaSubject" class="py-2.5 text-white font-bold break-words"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 pr-6 font-black text-slate-500 uppercase tracking-widest">Security:</td>
+                                            <td class="py-2.5">
+                                                <div class="flex gap-4">
+                                                    <span id="metaSpf" class="flex items-center gap-1.5"><i class="fa-solid fa-shield"></i> SPF: <span class="status-dot"></span> <span class="status-text"></span></span>
+                                                    <span id="metaDkim" class="flex items-center gap-1.5"><i class="fa-solid fa-key"></i> DKIM: <span class="status-dot"></span> <span class="status-text"></span></span>
+                                                    <span id="metaDmarc" class="flex items-center gap-1.5"><i class="fa-solid fa-file-shield"></i> DMARC: <span class="status-dot"></span> <span class="status-text"></span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="flex-grow overflow-hidden rounded-2xl bg-black/60 border border-white/5 shadow-inner">
-                                <pre id="headerContent" class="h-full overflow-auto p-4 font-mono text-[12px] leading-relaxed text-emerald-400 selection:bg-emerald-500/20 custom-scrollbar whitespace-pre-wrap break-all"></pre>
+
+                            <!-- Raw Header Area -->
+                            <div class="flex-grow flex flex-col glass-card bg-black/40 border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+                                <div class="bg-white/5 px-6 py-3 border-b border-white/5 flex justify-between items-center">
+                                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-500">Node Protocol Source</span>
+                                    <button id="returnToListBtn" class="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition flex items-center gap-2">
+                                        <i class="fa-solid fa-arrow-left"></i> Return to List
+                                    </button>
+                                </div>
+                                <div class="flex-grow overflow-auto p-0 group">
+                                    <pre id="headerContent" class="p-6 text-[12px] font-mono leading-relaxed text-slate-400 whitespace-pre selection:bg-cyan-500/30 selection:text-white custom-scrollbar focus:outline-none" tabindex="0"></pre>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -203,12 +241,12 @@
 
     <!-- Loading Overlay -->
     <div id="loader" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex-col items-center justify-center">
-        <div class="w-16 h-16 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-pink-400 mt-4 animate-pulse">Establishing Secure Channel...</p>
+        <div class="w-16 h-16 border-4 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-sky-400 mt-4 animate-pulse">Establishing Secure Channel...</p>
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-8 right-8 bg-gray-800 text-white px-6 py-3 rounded-xl border border-pink-500/30 shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3">
+    <div id="toast" class="fixed bottom-8 right-8 bg-gray-800 text-white px-6 py-3 rounded-xl border border-sky-500/30 shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3">
         <i class="fa-solid fa-circle-check text-green-400"></i>
         <span id="toastMsg">Notification System</span>
     </div>
@@ -223,12 +261,18 @@
                 </button>
             </div>
             <div class="flex-grow p-4 overflow-hidden">
-                <textarea id="viewContent" class="w-full h-full bg-black/50 text-gray-300 font-mono text-sm p-4 rounded-lg border border-white/10 focus:outline-none focus:border-pink-500/50 resize-none" readonly></textarea>
+                <textarea id="viewContent" class="w-full h-full bg-black/50 text-gray-300 font-mono text-sm p-4 rounded-lg border border-white/10 focus:outline-none focus:border-sky-500/50 resize-none" readonly></textarea>
             </div>
             <div class="p-4 border-t border-white/10 flex justify-end gap-2 bg-white/5">
-                <button id="downloadViewBtn" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition text-sm">Download Content</button>
-                <button id="copyViewBtn" class="px-4 py-2 rounded-lg bg-pink-500 text-white hover:bg-pink-600 transition text-sm">Copy Content</button>
+                <button id="downloadViewBtn" class="px-4 py-2 rounded-lg bg-sky-500 text-white hover:bg-sky-600 transition text-sm">Download Content</button>
+                <button id="copyViewBtn" class="px-4 py-2 rounded-lg bg-cyan-500 text-white hover:bg-cyan-600 transition text-sm">Copy Content</button>
             </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-6 right-6 z-50 pointer-events-none select-none opacity-40 hover:opacity-100 transition-opacity duration-500">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+            <span class="text-[9px] font-black uppercase tracking-[0.2em] text-sky-500/80">@benalilouelkhamar</span>
         </div>
     </div>
 

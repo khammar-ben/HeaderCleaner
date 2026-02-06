@@ -1,31 +1,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-    /* Dark Theme (Obsidian) - Default */
-    --bg-primary: #0a0a0c;
-    --bg-secondary: #121217;
-    --accent-pink: #f472b6;
-    --accent-purple: #a855f7;
-    --accent-cyan: #22d3ee;
+    /* Dark Theme (Ocean Deep) - Default */
+    --bg-primary: #0a0e1a;
+    --bg-secondary: #0f1729;
+    --accent-primary: #0ea5e9;
+    --accent-secondary: #06b6d4;
+    --accent-teal: #14b8a6;
     --accent-emerald: #10b981;
-    --glass-bg: rgba(255, 255, 255, 0.03);
+    --accent-blue: #3b82f6;
+    --glass-bg: rgba(255, 255, 255, 0.02);
     --glass-border: rgba(255, 255, 255, 0.08);
-    --selection-bg: rgba(244, 114, 182, 0.3);
-    --text-primary: #e2e8f0;
-    --text-secondary: #94a3b8;
-    --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+    --selection-bg: rgba(14, 165, 233, 0.3);
+    --text-primary: #ffffff;
+    --text-secondary: #64748b;
+    --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.6);
 }
 
 [data-theme="light"] {
-    --bg-primary: #f8fafc;
+    --bg-primary: #f0f9ff;
     --bg-secondary: #ffffff;
-    --accent-pink: #db2777;
-    --accent-purple: #7c3aed;
-    --accent-cyan: #0891b2;
+    --accent-primary: #0284c7;
+    --accent-secondary: #0891b2;
+    --accent-teal: #0d9488;
     --accent-emerald: #059669;
+    --accent-blue: #2563eb;
     --glass-bg: rgba(255, 255, 255, 0.8);
     --glass-border: rgba(0, 0, 0, 0.05);
-    --selection-bg: rgba(219, 39, 119, 0.2);
+    --selection-bg: rgba(2, 132, 199, 0.2);
     --text-primary: #1e293b;
     --text-secondary: #64748b;
     --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
@@ -49,12 +51,12 @@ body {
 }
 
 .glass-card:hover {
-    border-color: var(--accent-pink);
+    border-color: var(--accent-primary);
     box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2);
 }
 
 .glass-input {
-    background: var(--bg-secondary);
+    background: rgba(0, 0, 0, 0.4);
     border: 1px solid var(--glass-border);
     color: var(--text-primary);
     backdrop-filter: blur(8px);
@@ -62,9 +64,10 @@ body {
 }
 
 .glass-input:focus {
-    border-color: var(--accent-pink);
-    box-shadow: 0 0 15px rgba(244, 114, 182, 0.1);
-    background: var(--bg-secondary);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.15);
+    background: rgba(0, 0, 0, 0.5);
+    outline: none;
 }
 
 .glass-input::placeholder {
@@ -82,8 +85,8 @@ body {
 
 .glass-button:hover {
     background: rgba(255, 255, 255, 0.1);
-    border-color: var(--accent-pink);
-    color: var(--accent-pink);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
     transform: translateY(-2px);
 }
 
@@ -126,7 +129,7 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-pink);
+    background: var(--accent-primary);
 }
 
 /* List Item Hover & Active States */
@@ -136,15 +139,24 @@ body {
     border: 1px solid transparent;
 }
 
-.email-item:hover {
-    background: rgba(255, 255, 255, 0.03);
+.email-item.glass-card {
+    background: rgba(255, 255, 255, 0.015);
+    backdrop-filter: blur(8px);
     border-color: rgba(255, 255, 255, 0.05);
-    transform: translateY(-1px);
+    box-shadow: none;
+}
+
+.email-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.3);
 }
 
 .email-item.active {
-    background: rgba(244, 114, 182, 0.08);
-    border-color: rgba(244, 114, 182, 0.15);
+    background: rgba(14, 165, 233, 0.08);
+    border-color: rgba(14, 165, 233, 0.3);
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.1);
 }
 
 .email-item .subject {
@@ -234,4 +246,137 @@ body {
 
 .no-scrollbar::-webkit-scrollbar {
     display: none;
+}
+
+/* Horizontal Email Cards */
+.email-card-horizontal {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 300px;
+}
+
+.email-card-horizontal:hover {
+    background: rgba(14, 165, 233, 0.08);
+    border-color: rgba(14, 165, 233, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.email-card-horizontal.active {
+    background: rgba(14, 165, 233, 0.12);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.2);
+}
+
+#emailCardsContainer {
+    display: none;
+}
+
+#emailCardsContainer::-webkit-scrollbar {
+    height: 6px;
+}
+
+#emailCardsContainer::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#emailCardsContainer::-webkit-scrollbar-thumb {
+    background: rgba(14, 165, 233, 0.3);
+    border-radius: 10px;
+}
+
+#emailCardsContainer::-webkit-scrollbar-thumb:hover {
+    background: rgba(14, 165, 233, 0.5);
+}
+
+/* Gmail-Style Viewer Refinements */
+#contentArea {
+    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#headerContent {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    tab-size: 4;
+    -moz-tab-size: 4;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Status Dot Pulse for PASS */
+.status-dot.status-success {
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+.status-dot.status-error {
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% {
+        box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 8px rgba(244, 63, 94, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(244, 63, 94, 0);
+    }
+}
+
+/* Scrollbar within pre area */
+#headerContent::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+#headerContent::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+#headerContent::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid transparent;
+    background-clip: content-box;
+    border-radius: 10px;
+}
+
+#headerContent::-webkit-scrollbar-thumb:hover {
+    background: rgba(14, 165, 233, 0.3);
+    border: 2px solid transparent;
+    background-clip: content-box;
 }

@@ -26,6 +26,14 @@ const contentArea = document.getElementById('contentArea');
 const emptyState = document.getElementById('emptyState');
 const headerContent = document.getElementById('headerContent');
 const metaSubject = document.getElementById('metaSubject');
+const metaFrom = document.getElementById('metaFrom');
+const metaTo = document.getElementById('metaTo');
+const metaDate = document.getElementById('metaDate');
+const metaId = document.getElementById('metaId');
+const metaSpf = document.getElementById('metaSpf');
+const metaDkim = document.getElementById('metaDkim');
+const metaDmarc = document.getElementById('metaDmarc');
+const mainEmailList = document.getElementById('mainEmailList');
 
 const copyBtn = document.getElementById('copyBtn');
 const downloadBtn = document.getElementById('downloadBtn');
@@ -47,9 +55,15 @@ const toast = document.getElementById('toast');
 // API Configuration
 // For local dev (frontend on 5000, backend on 3000), use absolute URL.
 // For production (Vercel), use relative /api
-const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.'))
-    ? `http://${window.location.hostname}:3000/api`
-    : '/api';
+const getApiUrl = () => {
+    const { hostname, protocol, port } = window.location;
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.')) {
+        // Assume backend is always on 3000 during local dev
+        return `${protocol}//${hostname}:3000/api`;
+    }
+    return '/api';
+};
+const API_URL = getApiUrl();
 
 // Check backend health on load
 async function checkBackendHealth() {
@@ -64,200 +78,9 @@ async function checkBackendHealth() {
 }
 window.addEventListener('load', checkBackendHealth);
 
-// Script content
-const SCRIPT_CONTENT = `(function() {
-    // === 🛠️ CONFIG ===
-    const SEPARATOR = "__SEP__";
-    const PLACEHOLDER = "{{NEWS}}";
-    const BUTTON_SELECTOR = 'button[data-action-type="test_ips"]';
-    const CREATIVE_TEXTAREA_SELECTOR = 'textarea[name="creatives[value][]"]';
-    const HEADER_TEXTAREA_SELECTOR = 'textarea.header';
-    const RECIPIENT_SELECTOR = '#rcpt_to';
 
-    // === 🔴 CONTROL FLAGS ===
-    let isStopped = false;
-    let isPaused = false;
-    let currentIndex = 0;
-    let versions = [];
-    let originalCreativeTemplate = "";
-    let originalHeaderTemplate = "";
-    let originalRecipientEmail = "";
-    let recipientInput = null;
-    let creativeTextarea = null;
-    let headerTextarea = null;
+// Script content removed - now loaded from script.txt file
 
-    // Wait for element
-    function waitForElement(selector, timeout = 10000) {
-        return new Promise((resolve) => {
-            const startTime = Date.now();
-            const check = () => {
-                const el = document.querySelector(selector);
-                if (el) resolve(el);
-                else if (Date.now() - startTime > timeout) resolve(null);
-                else setTimeout(check, 200);
-            };
-            check();
-        });
-    }
-
-    // Extract base email
-    function extractBaseEmail(email) {
-        if (!email || !email.includes('@')) return email;
-        const [local, domain] = email.split('@');
-        return local.split('+')[0] + '@' + domain;
-    }
-
-    // Create button helper
-    function createButton(id, text, color, onClick) {
-        const btn = document.createElement('button');
-        btn.id = id;
-        btn.innerText = text;
-        btn.style.cssText = \`
-            padding: 12px 24px;
-            background: \${color};
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            transition: transform 0.2s, opacity 0.2s;
-            margin: 5px;
-        \`;
-        btn.onmouseover = () => btn.style.transform = "scale(1.05)";
-        btn.onmouseout = () => btn.style.transform = "scale(1)";
-        btn.onclick = onClick;
-        return btn;
-    }
-
-    // Update textarea helper
-    function updateTextarea(textarea, value) {
-        if (!textarea) return;
-        textarea.focus();
-        textarea.value = value;
-        ['input', 'change'].forEach(eventType => {
-            textarea.dispatchEvent(new Event(eventType, { bubbles: true }));
-        });
-        textarea.blur();
-    }
-
-    // Main initialization
-    Promise.all([
-        waitForElement(CREATIVE_TEXTAREA_SELECTOR),
-        waitForElement(HEADER_TEXTAREA_SELECTOR)
-    ])
-        .then(async ([creative, header]) => {
-            if (!creative) {
-                alert("❌ Creative textarea not found. Check selector: " + CREATIVE_TEXTAREA_SELECTOR);
-                return;
-            }
-
-            creativeTextarea = creative;
-            originalCreativeTemplate = creative.value;
-
-            if (header) {
-                headerTextarea = header;
-                originalHeaderTemplate = header.value;
-            }
-
-            // Wait for recipient input
-            recipientInput = await waitForElement(RECIPIENT_SELECTOR);
-            if (recipientInput) {
-                originalRecipientEmail = extractBaseEmail(recipientInput.value.trim());
-            }
-
-            // Remove old buttons
-            ['automation-btn', 'stop-btn', 'continue-btn', 'delete-btn'].forEach(id => {
-                const existing = document.querySelector(\`#\${id}\`);
-                if (existing) existing.remove();
-            });
-
-            // Create button container
-            const container = document.createElement('div');
-            container.id = 'automation-controls';
-            container.style.cssText = \`
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                z-index: 99999;
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-            \`;
-
-            // Buttons
-            const startBtn = createButton('automation-btn', '🤖 Start Replacement', 'linear-gradient(135deg, #6e8efb, #a777e3)', handleStart);
-            const stopBtn = createButton('stop-btn', '⏹️ Stop', '#f44336', handleStop);
-            const continueBtn = createButton('continue-btn', '▶️ Continue', '#4CAF50', handleContinue);
-            const deleteBtn = createButton('delete-btn', '🗑️ Reset', '#9E9E9E', handleDelete);
-
-            stopBtn.style.display = 'none';
-            continueBtn.style.display = 'none';
-
-            container.appendChild(startBtn);
-            container.appendChild(stopBtn);
-            container.appendChild(continueBtn);
-            container.appendChild(deleteBtn);
-            document.body.appendChild(container);
-
-            const infoBox = document.createElement('div');
-            infoBox.id = 'test-info-box';
-            infoBox.style.cssText = "position:fixed; top:20px; left:20px; z-index:99999; background:white; border:2px solid #6e8efb; border-radius:12px; padding:20px; display:none; min-width:300px; box-shadow:0 4px 20px rgba(0,0,0,0.3); font-family:sans-serif;";
-            infoBox.innerHTML = '<h3>📊 Progress</h3><div id="info-status">Idle</div><div id="info-current"></div><div id="info-total"></div><div id="info-preview" style="font-size:10px; max-height:100px; overflow:auto; margin-top:10px; background:#f5f5f5; padding:5px;"></div>';
-            document.body.appendChild(infoBox);
-
-            function updateInfoBox(status, cur, tot, content) {
-                infoBox.style.display = 'block';
-                document.getElementById('info-status').innerText = status;
-                document.getElementById('info-current').innerText = "Current: " + cur;
-                document.getElementById('info-total').innerText = "Total: " + tot;
-                document.getElementById('info-preview').innerText = content;
-            }
-
-            async function handleStart() {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.txt';
-                input.onchange = async (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    versions = (await file.text()).split(SEPARATOR).map(v => v.trim()).filter(v => v.length > 0);
-                    if (versions.length === 0) return alert("No versions found");
-                    const testBtn = document.querySelector(BUTTON_SELECTOR);
-                    if (!testBtn) return alert("Test button not found");
-                    isStopped = false; isPaused = false; currentIndex = 0;
-                    startBtn.style.display = 'none'; stopBtn.style.display = 'block';
-                    await runTests(testBtn);
-                };
-                input.click();
-            }
-
-            function handleStop() { isPaused = true; stopBtn.style.display = 'none'; continueBtn.style.display = 'block'; }
-            function handleContinue() { isPaused = false; continueBtn.style.display = 'none'; stopBtn.style.display = 'block'; runTests(document.querySelector(BUTTON_SELECTOR)); }
-            function handleDelete() { if(confirm('Reset?')){ location.reload(); } }
-
-            async function runTests(testBtn) {
-                for (let i = currentIndex; i < versions.length; i++) {
-                    if (isStopped || isPaused) { currentIndex = i; return; }
-                    const v = versions[i];
-                    updateInfoBox('Running', i+1, versions.length, v);
-                    updateTextarea(creativeTextarea, originalCreativeTemplate.replace(new RegExp(PLACEHOLDER, 'g'), v));
-                    if (headerTextarea) updateTextarea(headerTextarea, originalHeaderTemplate.replace(new RegExp(PLACEHOLDER, 'g'), v));
-                    if (recipientInput) {
-                        const [local, domain] = originalRecipientEmail.split('@');
-                        recipientInput.value = \`\${local}+\${i+1}@\${domain}\`;
-                        recipientInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    }
-                    testBtn.click();
-                    await new Promise(r => setTimeout(r, 3000));
-                }
-                updateInfoBox('Completed', versions.length, versions.length, 'Done');
-                startBtn.style.display = 'block'; stopBtn.style.display = 'none';
-            }
-        });
-})();\`;
-`;
 
 // Event Listeners
 loginForm.addEventListener('submit', handleLogin);
@@ -267,13 +90,24 @@ copyBtn.addEventListener('click', copyToClipboard);
 downloadBtn.addEventListener('click', downloadOriginals);
 viewBtn.addEventListener('click', openViewModal);
 
-scriptTestBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(SCRIPT_CONTENT).then(() => {
+const returnToListBtn = document.getElementById('returnToListBtn');
+if (returnToListBtn) {
+    returnToListBtn.addEventListener('click', () => selectEmail(null));
+}
+
+scriptTestBtn.addEventListener('click', async () => {
+    try {
+        const response = await fetch('script.txt');
+        if (!response.ok) {
+            throw new Error('script.txt not found');
+        }
+        const scriptContent = await response.text();
+        await navigator.clipboard.writeText(scriptContent);
         showToast('Script copied to clipboard!');
-    }).catch(err => {
-        console.error('Failed to copy script:', err);
-        showToast('Failed to copy script', true);
-    });
+    } catch (err) {
+        console.error('Failed to load/copy script:', err);
+        showToast('Failed to copy script - ensure script.txt exists', true);
+    }
 });
 
 closeViewBtn.addEventListener('click', () => viewModal.classList.add('hidden'));
@@ -325,10 +159,10 @@ function updateModeUI() {
     const btnCleaned = document.getElementById('btnCleaned');
 
     if (state.isAnonymized) {
-        btnCleaned.className = 'px-3 py-1 rounded-md text-sm font-medium bg-pink-500 text-white shadow-sm transition';
+        btnCleaned.className = 'px-3 py-1 rounded-md text-sm font-medium bg-sky-500 text-white shadow-sm transition';
         btnRaw.className = 'px-3 py-1 rounded-md text-sm font-medium text-gray-400 hover:text-white transition';
     } else {
-        btnRaw.className = 'px-3 py-1 rounded-md text-sm font-medium bg-pink-500 text-white shadow-sm transition';
+        btnRaw.className = 'px-3 py-1 rounded-md text-sm font-medium bg-sky-500 text-white shadow-sm transition';
         btnCleaned.className = 'px-3 py-1 rounded-md text-sm font-medium text-gray-400 hover:text-white transition';
     }
 }
@@ -367,33 +201,34 @@ async function handleLogin(e) {
         const data = await response.json();
 
         if (response.ok) {
-            // Success
+            console.log('✅ Connection Successful');
             state.email = email;
             state.password = password; // Keep in RAM
 
-            showStatus('Connected!', 'text-green-400');
+            showStatus('Protocol Link Established!', 'text-green-400');
 
             // Switch UI
             setTimeout(() => {
                 loginSection.classList.add('hidden');
                 dashboardSection.classList.remove('hidden');
                 dashboardSection.classList.add('flex'); // Restore flex layout
-                // Small delay to allow display:flex to apply before opacity transition
+
                 requestAnimationFrame(() => {
                     dashboardSection.classList.remove('opacity-0', 'translate-y-4');
                 });
 
-                // Clear inputs
+                // Clear inputs and status
                 passwordInput.value = '';
+                showStatus('', '');
 
                 // Fetch Boxes and Data
                 fetchBoxes();
-
                 fetchEmails();
             }, 800);
 
         } else {
-            showStatus(data.message || 'Connection failed', 'text-red-400');
+            console.warn('❌ Connection Failed:', data.message);
+            showStatus(data.message || 'Verification Failed', 'text-red-400');
             state.password = '';
         }
 
@@ -506,21 +341,19 @@ async function fetchEmails() {
 }
 
 function renderEmailList() {
+    const mainEmailList = document.getElementById('mainEmailList');
+
     if (state.emails.length === 0) {
-        emailList.innerHTML = `
-            <div class="flex flex-col items-center justify-center h-48 text-slate-600">
-                <i class="fa-solid fa-inbox text-4xl mb-3 opacity-20"></i>
-                <p class="text-xs font-bold uppercase tracking-widest">No Buffer Data</p>
-            </div>
-        `;
+        if (mainEmailList) mainEmailList.innerHTML = '';
         return;
     }
 
-    const fragment = document.createDocumentFragment();
+    // Render ONLY in main content area
+    const mainFragment = document.createDocumentFragment();
     state.emails.forEach(email => {
-        const item = document.createElement('div');
+        const card = document.createElement('div');
         const isActive = state.selectedEmailId === email.id;
-        item.className = `email-item glass-card p-3.5 rounded-2xl cursor-pointer relative group transition-all duration-300 ${isActive ? 'active' : 'hover:bg-white/5'}`;
+        card.className = `email-item glass-card p-4 rounded-2xl cursor-pointer relative group transition-all duration-300 ${isActive ? 'active' : ''}`;
 
         const fromFull = email.headers.from ? email.headers.from[0] : 'Unknown';
         const senderName = fromFull.split('<')[0].trim().replace(/^"|"$/g, '') || 'System';
@@ -529,13 +362,11 @@ function renderEmailList() {
         const dateRaw = email.headers.date ? email.headers.date[0] : '';
         const dayMonth = dateRaw.split(' ').slice(1, 3).join(' ') || 'Node';
 
-        item.innerHTML = `
+        card.innerHTML = `
             <div class="flex items-center gap-4">
-                <div class="relative flex items-center justify-center shrink-0">
-                    <input type="checkbox" class="email-checkbox w-4 h-4 rounded-md border-white/10 bg-black/40 text-pink-500 focus:ring-0 transition-all cursor-pointer z-10" 
-                    ${state.checkedEmailIds.has(email.id) ? 'checked' : ''} data-id="${email.id}">
-                </div>
-                <div class="w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-black shrink-0 transition-all duration-500 glass-card bg-gradient-to-br from-white/5 to-white/0 border-white/5 group-hover:border-pink-500/30 group-hover:text-pink-400">
+                <input type="checkbox" class="email-checkbox w-4 h-4 rounded-md border-white/10 bg-black/40 text-sky-500 focus:ring-0 transition-all cursor-pointer" 
+                ${state.checkedEmailIds.has(email.id) ? 'checked' : ''} data-id="${email.id}">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-black shrink-0 transition-all duration-500 bg-gradient-to-br from-white/5 to-white/0 border border-white/5 group-hover:border-sky-500/30 group-hover:text-sky-400">
                     ${initial}
                 </div>
                 <div class="flex-grow overflow-hidden pr-2">
@@ -548,40 +379,65 @@ function renderEmailList() {
                     </div>
                 </div>
             </div>
-            ${isActive ? '<div class="absolute left-0 top-1/4 bottom-1/4 w-1 bg-pink-500 rounded-r-full shadow-[0_0_12px_rgba(236,72,153,0.5)]"></div>' : ''}
+            ${isActive ? '<div class="absolute left-0 top-1/4 bottom-1/4 w-1 bg-sky-500 rounded-r-full shadow-[0_0_12px_rgba(14,165,233,0.5)]"></div>' : ''}
         `;
 
-        item.addEventListener('click', (e) => {
+        card.addEventListener('click', (e) => {
             if (e.target.type === 'checkbox') return;
             selectEmail(email.id);
         });
 
-        const checkbox = item.querySelector('.email-checkbox');
+        const checkbox = card.querySelector('.email-checkbox');
         checkbox.addEventListener('change', (e) => {
             if (e.target.checked) state.checkedEmailIds.add(email.id);
             else state.checkedEmailIds.delete(email.id);
         });
 
-        fragment.appendChild(item);
+        mainFragment.appendChild(card);
     });
 
-    emailList.innerHTML = '';
-    emailList.appendChild(fragment);
+    if (mainEmailList) {
+        mainEmailList.innerHTML = '';
+        mainEmailList.appendChild(mainFragment);
+    }
 }
 
 function selectEmail(id) {
+    console.log('Action: selectEmail', id);
+
+    const mList = document.getElementById('mainEmailList');
+    const cArea = document.getElementById('contentArea');
+    const iText = document.getElementById('instructionText');
+    const eState = document.getElementById('emptyState');
+
+    if (id === null) {
+        state.selectedEmailId = null;
+        if (mList) mList.classList.remove('hidden');
+        if (cArea) cArea.classList.add('hidden');
+        if (iText) iText.classList.remove('hidden');
+        if (eState) eState.classList.remove('hidden');
+
+        // Remove active state from all items
+        document.querySelectorAll('.email-item').forEach(item => {
+            item.classList.remove('active');
+            const bar = item.querySelector('.absolute.left-0');
+            if (bar) bar.remove();
+        });
+
+        renderEmailList();
+        return;
+    }
+
     if (state.selectedEmailId === id) return;
 
-    // Update previous and new active items visually instead of re-rendering everything
-    const items = emailList.querySelectorAll('.email-item');
-    items.forEach(item => {
+    // Update active state in UI
+    document.querySelectorAll('.email-item').forEach(item => {
         const checkbox = item.querySelector('.email-checkbox');
         if (checkbox && checkbox.getAttribute('data-id') === String(id)) {
             item.classList.add('active');
-            // Ensure the selection indicator bar is present
             if (!item.querySelector('.absolute.left-0')) {
                 const bar = document.createElement('div');
-                bar.className = 'absolute left-0 top-1/4 bottom-1/4 w-1 bg-pink-500 rounded-r-full shadow-[0_0_12px_rgba(236,72,153,0.5)]';
+                bar.className = 'absolute left-0 top-1/4 bottom-1/4 w-1 bg-sky-500 rounded-r-full shadow-[0_0_12px_rgba(14,165,233,0.5)]';
                 item.appendChild(bar);
             }
         } else if (checkbox && checkbox.getAttribute('data-id') === String(state.selectedEmailId)) {
@@ -593,8 +449,8 @@ function selectEmail(id) {
 
     state.selectedEmailId = id;
 
-    const instructionText = document.getElementById('instructionText');
-    if (instructionText) instructionText.classList.add('hidden');
+    if (iText) iText.classList.add('hidden');
+    if (eState) eState.classList.add('hidden');
 
     const email = state.emails.find(e => e.id === id);
     if (email) {
@@ -605,12 +461,14 @@ function selectEmail(id) {
 function renderViewer(email) {
     if (!email) {
         emptyState.classList.remove('hidden');
-        contentArea.classList.add('hidden');
+        if (contentArea) contentArea.classList.add('hidden');
+        if (mainEmailList) mainEmailList.classList.remove('hidden');
         return;
     }
 
     emptyState.classList.add('hidden');
-    contentArea.classList.remove('hidden');
+    if (mainEmailList) mainEmailList.classList.add('hidden');
+    if (contentArea) contentArea.classList.remove('hidden');
 
     // Extract meta info from raw header for display
     const raw = email.raw || '';
@@ -618,14 +476,51 @@ function renderViewer(email) {
     const headerText = splitIndex !== -1 ? raw.substring(0, splitIndex) : raw;
 
     const regexVal = (key) => {
-        const match = headerText.match(new RegExp(`^ ${key}: \\s * (.*)$`, 'im'));
+        const match = headerText.match(new RegExp(`^${key}:\\s*([\\s\\S]*?)(?:\\r?\\n[\\x20\\t]|\\r?\\n|$)`, 'im'));
         return match ? match[1].trim() : '';
     };
-    metaFrom.textContent = regexVal('From');
-    metaSubject.textContent = regexVal('Subject');
+
+    if (metaFrom) metaFrom.textContent = regexVal('From');
+    if (metaTo) metaTo.textContent = regexVal('To');
+    if (metaSubject) metaSubject.textContent = regexVal('Subject');
+    if (metaDate) metaDate.textContent = regexVal('Date');
+    if (metaId) metaId.textContent = regexVal('Message-ID');
+
+    // Security Status Extraction Helper
+    const updateSecurityStatus = (element, key) => {
+        if (!element) return;
+        const statusDot = element.querySelector('.status-dot');
+        const statusText = element.querySelector('.status-text');
+
+        // Gmail "Show Original" usually shows SPF, DKIM, DMARC status
+        // We look for common patterns in headers like Authentication-Results or specific result headers
+        const authResults = regexVal('Authentication-Results');
+        const resultMatch = authResults.match(new RegExp(`${key}=(pass|fail|softfail|none|neutral|policy|permerror|temperror)`, 'i'));
+        const status = resultMatch ? resultMatch[1].toLowerCase() : 'none';
+
+        if (status === 'pass') {
+            statusDot.className = 'status-dot status-success';
+            statusText.textContent = 'PASS';
+            statusText.className = 'status-text text-emerald-500 font-black';
+        } else if (status === 'fail') {
+            statusDot.className = 'status-dot status-error';
+            statusText.textContent = 'FAIL';
+            statusText.className = 'status-text text-red-500 font-black';
+        } else {
+            statusDot.className = 'status-dot bg-slate-700';
+            statusText.textContent = status.toUpperCase();
+            statusText.className = 'status-text text-slate-500 font-bold';
+        }
+    };
+
+    updateSecurityStatus(metaSpf, 'spf');
+    updateSecurityStatus(metaDkim, 'dkim');
+    updateSecurityStatus(metaDmarc, 'dmarc');
 
     // Display content based on mode
     headerContent.textContent = getProcessedContent(email);
+    // Scroll to top of content
+    headerContent.parentElement.scrollTop = 0;
 }
 
 // Helper to get raw or cleaned content based on current state
@@ -648,6 +543,10 @@ function getProcessedContent(email) {
     }
 
     const processedHeader = processHeaders(headerText);
+
+    // If Remove Body is checked, return only the headers
+    const removeBody = document.getElementById('removeBody').checked;
+    if (removeBody) return processedHeader;
 
     // Remove "Original Message" blocks
     let cleanBody = bodyText;
@@ -680,77 +579,104 @@ function processHeaders(raw) {
     const lines = raw.split(/\r\n|\n/);
     let output = [];
     let hasCc = false;
+    let skippingHeader = false;
 
-
+    // Headers to strictly remove (including their multi-line continuations)
+    const removeHeaders = [
+        'delivered-to:',
+        'x-received:',
+        'arc-seal:',
+        'arc-message-signature:',
+        'arc-authentication-results:',
+        'return-path:',
+        'received-spf:',
+        'authentication-results:',
+        'dkim-signature:',
+        'x-sib-id:',
+        'feedback-id:',
+        'x-mailin-eid:',
+        'origin-messageid:',
+        'x-google-smtp-source:'
+    ];
 
     for (let i = 0; i < lines.length; i++) {
         let line = lines[i];
+
+        // Empty line signals end of headers in some contexts, but we process raw block
         if (line.trim() === '') {
             output.push(line);
+            skippingHeader = false;
             continue;
         }
 
-        let lowerLine = line.toLowerCase();
+        // Check if this is a continuation line (starts with space or tab)
+        const isContinuation = (line.length > 0 && (line[0] === ' ' || line[0] === '\t'));
 
-        // --- Selective Removal (Aggressive for "Clean Header") ---
-        if (lowerLine.startsWith('arc-') ||
-            lowerLine.startsWith('dkim-') ||
-            lowerLine.startsWith('spf-') ||
-            lowerLine.startsWith('authentication-results') ||
-            lowerLine.startsWith('delivered-to') ||
-            lowerLine.startsWith('return-path') ||
-            lowerLine.startsWith('received-spf') ||
-            lowerLine.startsWith('message-id') ||
-            lowerLine.startsWith('x-')) {
-
-            // Special case for Message-ID tag request
-            if (lowerLine.startsWith('message-id:')) {
-                if (line.includes('@')) {
-                    output.push(line.replace('@', `${msgIdTag} @`));
-                } else {
-                    output.push(line);
-                }
+        if (isContinuation) {
+            if (!skippingHeader) {
+                output.push(line);
             }
             continue;
         }
 
-        // --- Replacement Logic ---
-        if (lowerLine.startsWith('date:')) {
-            if (replaceDate) output.push('Date: [DATE]');
-            else output.push(line);
+        // It's a new header line
+        const lowerLine = line.toLowerCase();
+
+        // 1. Check if it should be removed entirely
+        if (removeHeaders.some(h => lowerLine.startsWith(h))) {
+            skippingHeader = true;
+            continue;
+        }
+
+        // 2. Specialized Anonymization Logic
+        skippingHeader = false; // We found a header to keep
+
+        if (lowerLine.startsWith('from:')) {
+            // Transform "Name <user@domain>" to "Name<user>"
+            let fromVal = line.substring(5).trim();
+            const fromMatch = fromVal.match(/^(.*?)\s*<([^@>]+)@.*?>$/);
+            if (fromMatch) {
+                const namePart = fromMatch[1].trim();
+                const userPart = fromMatch[2].trim();
+                output.push(`From: ${namePart}<${userPart}>`);
+            } else {
+                // Fallback for address only
+                output.push(`From: ${fromVal.split('@')[0]}`);
+            }
         }
         else if (lowerLine.startsWith('to:')) {
             if (replaceTo) output.push('To: [*to]');
             else output.push(line);
         }
+        else if (lowerLine.startsWith('date:')) {
+            if (replaceDate) output.push('Date: [DATE]');
+            else output.push(line);
+        }
+        else if (lowerLine.startsWith('message-id:')) {
+            // Embedding [EID] before @ and ensuring uppercase ID
+            if (line.includes('@')) {
+                output.push(line.replace('Id:', 'ID:').replace('@', `${msgIdTag}@`));
+            } else {
+                output.push(line.replace('Id:', 'ID:'));
+            }
+        }
         else if (lowerLine.startsWith('received:')) {
-            if (keepReceived) output.push(line);
+            if (keepReceived) {
+                output.push(line);
+            } else {
+                skippingHeader = true;
+            }
         }
         else if (lowerLine.startsWith('reply-to:')) {
             if (keepReplyTo) output.push(line);
-        }
-        else if (lowerLine.startsWith('from:')) {
-            // Domain processing
-            // Regex to find "user@domain.com"
-            const domainRegex = /@([\w.-]+)/;
-            if (domainVal) {
-                // Replace domain
-                output.push(line.replace(domainRegex, `@${domainVal} `));
-            } else {
-                // Remove domain entirely.
-                // "user@example.com" -> "user"
-                // Or "user@" -> "user"
-                // Requirement: "Replacing or removing domains".
-                // Previous prompt said "replace with [DMN]". Now "Leave empty to remove".
-                output.push(line.replace(domainRegex, ''));
-            }
+            else skippingHeader = true;
         }
         else if (lowerLine.startsWith('cc:')) {
             hasCc = true;
             output.push(line);
         }
         else {
-            // Keep other headers (Subject, MIME, Content-Type, etc.)
+            // Keep all other headers (X-SIB-ID, Subject, MIME, etc.)
             output.push(line);
         }
     }
@@ -852,8 +778,16 @@ function openViewModal() {
 
 // UI Helpers
 function showStatus(msg, colorClass) {
-    loginStatus.className = `h - 6 text - center text - sm font - medium ${colorClass} `;
+    if (!loginStatus) return;
+    // Keep initial layout classes and only swap the color/text
+    const baseClasses = 'h-6 text-center text-[10px] font-black uppercase tracking-widest mt-2 transition-all duration-300';
+    loginStatus.className = `${baseClasses} ${colorClass}`;
     loginStatus.textContent = msg;
+
+    // Add a small bounce on update
+    loginStatus.classList.remove('scale-100');
+    loginStatus.classList.add('scale-105');
+    setTimeout(() => loginStatus.classList.remove('scale-105'), 200);
 }
 
 function showLoader(show) {
@@ -925,38 +859,9 @@ function copyToClipboard() {
     }
 }
 
-// Sidebars & Collapsibles
-const themeToggle = document.getElementById('themeToggle');
+// Sidebar Toggle
 const sidebarToggle = document.getElementById('sidebarToggle');
 const sidebar = document.getElementById('sidebar');
-const toggleRules = document.getElementById('toggleRules');
-const rulesContent = document.getElementById('rulesContent');
-const rulesCaret = document.getElementById('rulesCaret');
-
-function updateThemeUI(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    const themeIcon = themeToggle ? themeToggle.querySelector('i') : null;
-    if (themeIcon) {
-        themeIcon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-    }
-    localStorage.setItem('theme', theme);
-}
-
-if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        updateThemeUI(newTheme);
-    });
-}
-
-if (toggleRules && rulesContent && rulesCaret) {
-    toggleRules.addEventListener('click', () => {
-        console.log('Rules toggle clicked');
-        rulesContent.classList.toggle('collapsed');
-        rulesCaret.classList.toggle('rotated');
-    });
-}
 
 if (sidebarToggle && sidebar) {
     sidebarToggle.addEventListener('click', () => {
@@ -969,7 +874,3 @@ if (sidebarToggle && sidebar) {
         }
     });
 }
-
-// Initialize theme from localStorage
-const savedTheme = localStorage.getItem('theme') || 'dark';
-updateThemeUI(savedTheme);
